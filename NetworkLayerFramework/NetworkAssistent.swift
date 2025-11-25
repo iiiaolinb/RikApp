@@ -1,15 +1,15 @@
 //
 //  NetworkAssistent.swift
-//  RikApp
+//  NetworkLayerFramework
 //
 //  Created by Егор Худяев on 24.11.2025.
 //
 
 import Foundation
 
-final class NetworkAssistent {
+public final class NetworkAssistent {
 
-    static let shared = NetworkAssistent()
+    public static let shared = NetworkAssistent()
     private init() {}
 
     private let decoder: JSONDecoder = {
@@ -18,11 +18,11 @@ final class NetworkAssistent {
         return dec
     }()
     
-    func fetchStatistics() async -> Result<StatisticsResponse, Error> {
+    public func fetchStatistics() async -> Result<StatisticsResponse, Error> {
         await request(.statistics)
     }
 
-    func fetchUsers() async -> Result<UsersResponse, Error> {
+    public func fetchUsers() async -> Result<UsersResponse, Error> {
         await request(.users)
     }
 
@@ -49,4 +49,24 @@ final class NetworkAssistent {
             return .failure(error)
         }
     }
+    
+    public func requestRaw(_ endpoint: APIEndpoint) async -> Result<Data, Error> {
+        var request = URLRequest(url: endpoint.url)
+        request.httpMethod = endpoint.method
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let http = response as? HTTPURLResponse,
+                  (200..<300).contains(http.statusCode) else {
+                return .failure(NSError(domain: "BadStatusCode", code: 1))
+            }
+
+            return .success(data)
+
+        } catch {
+            return .failure(error)
+        }
+    }
 }
+

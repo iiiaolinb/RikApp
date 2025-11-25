@@ -1,0 +1,121 @@
+//
+//  VisitorRow.swift
+//  RikApp
+//
+//  Created by Егор Худяев on 25.11.2025.
+//
+
+import UIKit
+import PinLayout
+
+final class VisitorRowView: UIView {
+
+    private let avatar = UIImageView()
+    private let initialLabel = UILabel()
+    private let onlineDot = UIView()
+
+    private let nameLabel = UILabel()
+    private let arrow = UIImageView(image: UIImage(named: "arrowRight"))
+    private let separator = UIView()
+
+    private let visitor: TopVisitorsCell.Visitor
+    private let isLast: Bool
+
+    init(visitor: TopVisitorsCell.Visitor, isLast: Bool) {
+        self.visitor = visitor
+        self.isLast = isLast
+        super.init(frame: .zero)
+
+        setupAvatar()
+        setupOnlineIndicator()
+
+        nameLabel.text = "\(visitor.name), \(visitor.age) \(visitor.emoji)"
+        nameLabel.font = .systemFont(ofSize: 16)
+        nameLabel.textColor = Constants.Colors.black.color
+
+        arrow.tintColor = .tertiaryLabel
+
+        separator.backgroundColor = .lightGray.withAlphaComponent(0.5)
+        separator.isHidden = isLast
+
+        addSubview(avatar)
+        addSubview(initialLabel)
+        addSubview(onlineDot)
+        addSubview(nameLabel)
+        addSubview(arrow)
+        addSubview(separator)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    // MARK: – Avatar Placeholder
+
+    private func setupAvatar() {
+        avatar.layer.cornerRadius = 20
+        avatar.clipsToBounds = true
+        avatar.contentMode = .scaleAspectFill
+
+        if let img = visitor.image {
+            avatar.image = img
+            initialLabel.isHidden = true
+        } else {
+            avatar.backgroundColor = UIColor(white: 0.9, alpha: 1)
+            initialLabel.isHidden = false
+
+            if let first = visitor.name.first {
+                initialLabel.text = String(first).uppercased()
+            }
+
+            initialLabel.font = .boldSystemFont(ofSize: 18)
+            initialLabel.textColor = .darkGray
+            initialLabel.textAlignment = .center
+        }
+    }
+
+    private func setupOnlineIndicator() {
+        onlineDot.backgroundColor = visitor.isOnline ? UIColor.systemGreen : UIColor.clear
+        onlineDot.layer.cornerRadius = 6
+        onlineDot.layer.borderWidth = 2
+        onlineDot.layer.borderColor = UIColor.white.cgColor
+        onlineDot.isHidden = !visitor.isOnline
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        avatar.pin
+            .left(16)
+            .vCenter()
+            .size(40)
+
+        initialLabel.pin
+            .center(to: avatar.anchor.center)
+            .size(40)
+
+        onlineDot.pin
+            .bottomRight(to: avatar.anchor.bottomRight)
+            .marginBottom(-2)
+            .marginRight(-2)
+            .size(12)
+
+        arrow.pin
+            .right(16)
+            .vCenter()
+            .size(16)
+
+        nameLabel.pin
+            .after(of: avatar)
+            .marginLeft(12)
+            .before(of: arrow)
+            .vCenter()
+            .sizeToFit(.width)
+
+        if !isLast {
+            separator.pin
+                .bottom()
+                .left(nameLabel.frame.minX)
+                .right(5)
+                .height(1)
+        }
+    }
+}

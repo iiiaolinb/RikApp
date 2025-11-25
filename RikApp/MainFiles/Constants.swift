@@ -9,10 +9,7 @@ import UIKit
 
 enum Constants {
     enum Colors {
-        case black
-        case red
-        case orange
-        case gray
+        case black, red, orange, gray, backColor
         
         var color: UIColor {
             switch self {
@@ -24,6 +21,8 @@ enum Constants {
                 return UIColor(red: 249/255, green: 153/255, blue: 99/255, alpha: 1)
             case .gray:
                 return UIColor(red: 167/255, green: 167/255, blue: 177/255, alpha: 1)
+            case .backColor:
+                return UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
             }
         }
     }

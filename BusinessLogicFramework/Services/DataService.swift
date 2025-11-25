@@ -96,5 +96,12 @@ public final class DataService {
         async let users = fetchUsersFromServer()
         return (await stats, await users)
     }
+    
+    // MARK: - View Statistics
+    
+    /// Получает статистики просмотров из кэша
+    public func getViewStatistics() -> [StatisticItem] {
+        return realmService.getViewStatistics()
+    }
 }
 

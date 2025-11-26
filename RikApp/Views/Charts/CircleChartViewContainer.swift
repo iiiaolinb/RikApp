@@ -21,17 +21,17 @@ final class CircleChartViewContainer: UIView {
     private let femaleDot = UIView()
     private let femaleLabel = UILabel()
 
+    private let separator = UIView()
     private let agesContainer = UIView()
     private var ageRows: [AgeRowView] = []
 
     // Colors
-    private let maleColor = UIColor(red: 0.95, green: 0.17, blue: 0.14, alpha: 1)
-    private let femaleColor = UIColor(red: 1.0, green: 0.63, blue: 0.40, alpha: 1)
+    private let maleColor = Constants.Colors.red.color
+    private let femaleColor = Constants.Colors.orange.color
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
-        setData(men: 40, women: 60, ages: mockAges)
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -51,20 +51,24 @@ final class CircleChartViewContainer: UIView {
         addSubview(maleLabel)
         addSubview(femaleDot)
         addSubview(femaleLabel)
+        addSubview(separator)
         addSubview(agesContainer)
     }
 
     private func setupChart() {
         chart.legend.enabled = false
         chart.isUserInteractionEnabled = false
-        chart.holeRadiusPercent = 0.80
+        chart.holeRadiusPercent = 0.90
         chart.transparentCircleRadiusPercent = 0
         chart.rotationAngle = 270
 
         chart.drawEntryLabelsEnabled = false
         chart.highlightPerTapEnabled = false
         chart.usePercentValuesEnabled = false
-
+        
+        // Закругляем края chart
+        chart.layer.cornerRadius = 100
+        chart.clipsToBounds = true
     }
 
     private func setupLegend() {
@@ -79,6 +83,9 @@ final class CircleChartViewContainer: UIView {
 
         femaleLabel.font = .systemFont(ofSize: 14)
         femaleLabel.textColor = .black
+        
+        // Настройка сепаратора
+        separator.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
     }
 
     override func layoutSubviews() {
@@ -101,24 +108,33 @@ final class CircleChartViewContainer: UIView {
             .after(of: maleDot)
             .marginLeft(6)
             .sizeToFit(.width)
-
-        femaleDot.pin
-            .vCenter(to: maleDot.edge.vCenter)
-            .after(of: maleLabel)
-            .marginLeft(24)
-            .size(12)
-
+        
         femaleLabel.pin
-            .vCenter(to: femaleDot.edge.vCenter)
-            .after(of: femaleDot)
-            .marginLeft(6)
+            .below(of: chart)
+            .marginTop(12)
+            .right(28)
             .sizeToFit(.width)
 
-        agesContainer.pin
+        femaleDot.pin
+            .vCenter(to: femaleLabel.edge.vCenter)
+            .before(of: femaleLabel)
+            .marginRight(6)
+            .size(12)
+
+        // Размещаем сепаратор ниже легенды
+        separator.pin
             .below(of: maleDot)
             .marginTop(20)
             .horizontally(20)
-            .bottom(20)
+            .height(1)
+
+        // Размещаем agesContainer ниже сепаратора
+        // Фиксированная высота для 7 строк: 7 * 40 = 280
+        agesContainer.pin
+            .below(of: separator)
+            .marginTop(20)
+            .horizontally(20)
+            .height(280)
 
         layoutAgeRows()
     }
@@ -126,13 +142,26 @@ final class CircleChartViewContainer: UIView {
     private func layoutAgeRows() {
         var y: CGFloat = 0
         for row in ageRows {
-            row.pin.top(y).horizontally().height(32)
-            y += 32
+            row.pin.top(y).horizontally(0).height(40)
+            y += 40
         }
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return CGSize(width: size.width, height: 460)
+        // Расчет высоты для 7 строк AgeRowView
+        let chartTop: CGFloat = 20
+        let chartHeight: CGFloat = 200
+        let legendTop: CGFloat = 12
+        let legendHeight: CGFloat = 20 // примерная высота элементов легенды
+        let separatorTopMargin: CGFloat = 20
+        let separatorHeight: CGFloat = 1
+        let containerTopMargin: CGFloat = 20
+        let containerHeight: CGFloat = 280 // 7 строк * 40
+        let bottomMargin: CGFloat = 20
+        
+        let totalHeight = chartTop + chartHeight + legendTop + legendHeight + separatorTopMargin + separatorHeight + containerTopMargin + containerHeight + bottomMargin
+        
+        return CGSize(width: size.width, height: totalHeight)
     }
 
     // MARK: - Data
@@ -143,31 +172,24 @@ final class CircleChartViewContainer: UIView {
         let women: Int      // %
     }
 
-    private let mockAges: [AgeStats] = [
-        .init(range: "18–21", men: 10, women: 20),
-        .init(range: "22–25", men: 20, women: 30),
-        .init(range: "26–30", men: 5, women: 0),
-        .init(range: "31–35", men: 0, women: 0),
-        .init(range: "36–40", men: 5, women: 0),
-        .init(range: "40–50", men: 0, women: 10),
-        .init(range: ">50",  men: 0, women: 0)
-    ]
 
     func setData(men: Int, women: Int, ages: [AgeStats]) {
         // Update legend
         maleLabel.text = "Мужчины \(men)%"
         femaleLabel.text = "Женщины \(women)%"
+        maleLabel.sizeToFit()
+        femaleLabel.sizeToFit()
 
         // Update chart
         let entries = [
-            PieChartDataEntry(value: Double(men)),
-            PieChartDataEntry(value: Double(women))
+            PieChartDataEntry(value: Double(women)),
+            PieChartDataEntry(value: Double(men))
         ]
 
         let set = PieChartDataSet(entries: entries)
-        set.colors = [maleColor, femaleColor]
+        set.colors = [femaleColor, maleColor]
         set.drawValuesEnabled = false
-        set.sliceSpace = 6
+        set.sliceSpace = 12
         set.selectionShift = 0
 
         let data = PieChartData(dataSet: set)
@@ -179,10 +201,16 @@ final class CircleChartViewContainer: UIView {
 
         for age in ages {
             let row = AgeRowView()
+            row.configure(age: age.range, menPercent: age.men, womenPercent: age.women)
             ageRows.append(row)
             agesContainer.addSubview(row)
         }
 
         setNeedsLayout()
+        layoutIfNeeded()
+        
+        // Явно обновляем layout для agesContainer
+        agesContainer.setNeedsLayout()
+        agesContainer.layoutIfNeeded()
     }
 }

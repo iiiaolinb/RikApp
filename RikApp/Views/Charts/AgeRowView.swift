@@ -15,20 +15,26 @@ final class AgeRowView: UIView {
     private let womenBar = UIView()
     private let menPercentLabel = UILabel()
     private let womenPercentLabel = UILabel()
+    
+    private var menPercent: Int = 0
+    private var womenPercent: Int = 0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        ageLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        ageLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        ageLabel.textColor = .black
 
-        menBar.backgroundColor = UIColor(red: 1, green: 80/255, blue: 60/255, alpha: 1)
-        womenBar.backgroundColor = UIColor(red: 1, green: 150/255, blue: 120/255, alpha: 1)
+        menBar.backgroundColor = Constants.Colors.red.color
+        womenBar.backgroundColor = Constants.Colors.orange.color
 
         menBar.layer.cornerRadius = 3
         womenBar.layer.cornerRadius = 3
 
-        menPercentLabel.font = .systemFont(ofSize: 14)
-        womenPercentLabel.font = .systemFont(ofSize: 14)
+        menPercentLabel.font = .systemFont(ofSize: 12)
+        menPercentLabel.textColor = .black
+        womenPercentLabel.font = .systemFont(ofSize: 12)
+        womenPercentLabel.textColor = .black
 
         addSubview(ageLabel)
         addSubview(menBar)
@@ -41,16 +47,28 @@ final class AgeRowView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        menPercent = menPercent == 0 ? 5 : menPercent
+        womenPercent = womenPercent == 0 ? 5 : womenPercent
 
         ageLabel.pin.left().vCenter().sizeToFit()
 
-        let barWidth: CGFloat = bounds.width * 0.35
-
+        let maxBarWidth: CGFloat = bounds.width * 0.35
+        let menWidth = maxBarWidth * CGFloat(menPercent) / 100
+        let womenWidth = maxBarWidth * CGFloat(womenPercent) / 100
+        
+        // Размещаем оба бара относительно центра view
+        // menBar выше центра, womenBar ниже центра
+        let barSpacing: CGFloat = 8
+        let barHeight: CGFloat = 6
+        let centerY = bounds.height / 2
+        let offsetFromCenter = barHeight / 2 + barSpacing / 2
+        
         menBar.pin
-            .after(of: ageLabel, aligned: .center)
-            .marginLeft(16)
-            .width(barWidth)
-            .height(6)
+            .left()
+            .marginLeft(100)
+            .width(menWidth)
+            .height(barHeight)
+            .top(centerY - offsetFromCenter) // выше центра
 
         menPercentLabel.pin
             .right(of: menBar, aligned: .center)
@@ -58,11 +76,11 @@ final class AgeRowView: UIView {
             .sizeToFit()
 
         womenBar.pin
-            .below(of: menBar)
-            .marginTop(8)
-            .left(to: menBar.edge.left)
-            .width(barWidth)
-            .height(6)
+            .left()
+            .marginLeft(100)
+            .width(womenWidth)
+            .height(barHeight)
+            .top(centerY + offsetFromCenter) // ниже центра
 
         womenPercentLabel.pin
             .right(of: womenBar, aligned: .center)
@@ -75,14 +93,9 @@ final class AgeRowView: UIView {
         ageLabel.text = age
         menPercentLabel.text = "\(menPercent)%"
         womenPercentLabel.text = "\(womenPercent)%"
-
-        // Динамическая длина полос:
-        let maxWidth: CGFloat = UIScreen.main.bounds.width * 0.35
-        let menWidth = maxWidth * CGFloat(menPercent) / 100
-        let womenWidth = maxWidth * CGFloat(womenPercent) / 100
-
-        menBar.pin.width(menWidth)
-        womenBar.pin.width(womenWidth)
+        
+        self.menPercent = menPercent
+        self.womenPercent = womenPercent
 
         setNeedsLayout()
     }

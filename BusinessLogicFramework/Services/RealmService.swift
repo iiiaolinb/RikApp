@@ -22,7 +22,7 @@ public final class RealmService {
         print("Realm конфигурация инициализирована успешно")
     }
     
-    private func getRealm() throws -> Realm {
+    func getRealm() throws -> Realm {
         return try Realm(configuration: config)
     }
     

@@ -8,6 +8,7 @@
 import UIKit
 import DGCharts
 import PinLayout
+import BusinessLogicFramework
 
 final class GenderAgeCell: UITableViewCell {
 
@@ -43,7 +44,7 @@ final class GenderAgeCell: UITableViewCell {
 
         contentView.addSubview(circleChartView)
 
-        setChartData(men: 40, women: 60, ages: [])
+        loadData()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -73,13 +74,48 @@ final class GenderAgeCell: UITableViewCell {
             .below(of: segmentedControl!)
             .marginTop(12)
             .horizontally(12)
-            .height(260)
+            .height(593) // Высота для 7 строк: 20 + 200 + 12 + 20 + 20 + 1 + 20 + 280 + 20 = 593
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return CGSize(width: size.width, height: 380)
+        // Высота рассчитывается динамически на основе содержимого
+        let titleHeight: CGFloat = 12 + 22 + 12 // top + title + margin
+        let segmentHeight: CGFloat = 36 + 12 // segment + margin
+        // Высота CircleChartViewContainer для 7 строк: 20 + 200 + 12 + 20 + 20 + 1 + 20 + 280 + 20 = 593
+        let chartHeight: CGFloat = 593
+        let bottomMargin: CGFloat = 12
+        return CGSize(width: size.width, height: titleHeight + segmentHeight + chartHeight + bottomMargin)
     }
 
+    // MARK: - Data Loading
+    
+    private func loadData() {
+        Task {
+            if let data = DataService.shared.getGenderAndAgeData() {
+                let ageStats = data.ageStats.map { ageStat in
+                    CircleChartViewContainer.AgeStats(
+                        range: ageStat.range,
+                        men: ageStat.men,
+                        women: ageStat.women
+                    )
+                }
+                
+                await MainActor.run {
+                    setChartData(men: data.men, women: data.women, ages: ageStats)
+                }
+            } else {
+                print("Не удалось загрузить данные по полу и возрасту")
+                // Устанавливаем пустые данные
+                await MainActor.run {
+                    let emptyAges = (0..<7).map { _ in
+                        CircleChartViewContainer.AgeStats(range: "", men: 0, women: 0)
+                    }
+                    setChartData(men: 0, women: 0, ages: emptyAges)
+                }
+            }
+        }
+    }
+    
     // MARK: - Data for Chart
     func setChartData(men: Int, women: Int, ages: [CircleChartViewContainer.AgeStats]) {
         let entry1 = PieChartDataEntry(value: Double(men))
@@ -88,11 +124,11 @@ final class GenderAgeCell: UITableViewCell {
         let dataSet = PieChartDataSet(entries: [entry1, entry2])
         dataSet.drawValuesEnabled = false
         dataSet.selectionShift = 0
-        dataSet.sliceSpace = 6
+        dataSet.sliceSpace = 12
 
         dataSet.colors = [
-            UIColor(red: 0.95, green: 0.17, blue: 0.14, alpha: 1.0), // red
-            UIColor(red: 1.0, green: 0.63, blue: 0.40, alpha: 1.0) // peach
+            Constants.Colors.red.color,
+            Constants.Colors.orange.color
         ]
 
         circleChartView.setData(men: men, women: women, ages: ages)

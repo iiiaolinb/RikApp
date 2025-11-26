@@ -103,6 +103,11 @@ final class LineChartViewContainer: UIView {
         applyChartData(labels: labels, values: values)
     }
 
+    /// Сбрасывает выделение/аннотацию на графике
+    func clearHighlight() {
+        lineChartView.highlightValue(nil)
+    }
+
 
     // MARK: - Label builders
 
@@ -175,14 +180,22 @@ final class LineChartViewContainer: UIView {
         }
 
         let dataSet = LineChartDataSet(entries: entries, label: "Просмотры")
+        
+        // Отключаем стандартные линии подсветки чарта,
+        // чтобы оставить только нашу вертикальную пунктирную линию из ChartMarker
+        dataSet.drawHorizontalHighlightIndicatorEnabled = false
+        dataSet.drawVerticalHighlightIndicatorEnabled = false
+        
         dataSet.colors = [Constants.Colors.red.color]
         dataSet.circleColors = [Constants.Colors.red.color]
-        dataSet.circleRadius = 4
-        dataSet.lineWidth = 2
-        dataSet.mode = .cubicBezier
+        dataSet.circleRadius = 6
+        dataSet.circleHoleRadius = 3
+        dataSet.circleHoleColor = .white
+        dataSet.drawCircleHoleEnabled = true
+        dataSet.lineWidth = 3
+        dataSet.mode = .linear
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = true
-        dataSet.drawCircleHoleEnabled = false
         dataSet.highlightColor = Constants.Colors.red.color
         dataSet.highlightLineWidth = 2
         dataSet.drawFilledEnabled = false

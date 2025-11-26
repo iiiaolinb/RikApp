@@ -7,7 +7,9 @@
 
 import UIKit
 import PinLayout
-//1
+import BusinessLogicFramework
+import NetworkLayerFramework
+
 final class VisitorsSummaryCell: UITableViewCell {
 
     private let titleLabel = UILabel()
@@ -28,7 +30,7 @@ final class VisitorsSummaryCell: UITableViewCell {
         selectionStyle = .none
 
         titleLabel.text = "Посетители"
-        titleLabel.font = .boldSystemFont(ofSize: 20)
+        titleLabel.font = Constants.AppFont.bold(size: 20).font
         titleLabel.textColor = Constants.Colors.black.color
         contentView.addSubview(titleLabel)
 
@@ -41,7 +43,7 @@ final class VisitorsSummaryCell: UITableViewCell {
         container.addSubview(iconView)
 
         countTextLabel.text = "1356"
-        countTextLabel.font = .boldSystemFont(ofSize: 22)
+        countTextLabel.font = Constants.AppFont.bold(size: 22).font
         countTextLabel.textColor = Constants.Colors.black.color
         container.addSubview(countTextLabel)
 
@@ -50,10 +52,12 @@ final class VisitorsSummaryCell: UITableViewCell {
         container.addSubview(arrowView)
 
         descriptionLabel.text = "Количество посетителей в этом месяце выросло"
-        descriptionLabel.font = .systemFont(ofSize: 14)
+        descriptionLabel.font = Constants.AppFont.light(size: 14).font
         descriptionLabel.textColor = Constants.Colors.gray.color
         descriptionLabel.numberOfLines = 0
         container.addSubview(descriptionLabel)
+        
+        loadTotalVisitors()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -104,5 +108,12 @@ final class VisitorsSummaryCell: UITableViewCell {
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         return CGSize(width: size.width, height: 170)
+    }
+    
+    /// Загружает из Realm статистики типа `view`, суммирует все dates и отображает число.
+    func loadTotalVisitors() {
+        let viewStats = RealmService.shared.getViewStatistics()
+        let total = viewStats.reduce(0) { $0 + $1.dates.count }
+        countTextLabel.text = "\(total)"
     }
 }

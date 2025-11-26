@@ -8,6 +8,10 @@
 import UIKit
 import PinLayout
 
+protocol VisitorRowViewDelegate: AnyObject {
+    func visitorRowView(_ view: VisitorRowView, didTap visitor: TopVisitorsCell.Visitor)
+}
+
 final class VisitorRowView: UIView {
 
     private let avatar = UIImageView()
@@ -20,7 +24,9 @@ final class VisitorRowView: UIView {
 
     private let visitor: TopVisitorsCell.Visitor
     private let isLast: Bool
-
+    
+    weak var delegate: VisitorRowViewDelegate?
+    
     init(visitor: TopVisitorsCell.Visitor, isLast: Bool) {
         self.visitor = visitor
         self.isLast = isLast
@@ -30,7 +36,7 @@ final class VisitorRowView: UIView {
         setupOnlineIndicator()
 
         nameLabel.text = "\(visitor.name), \(visitor.age) \(visitor.emoji)"
-        nameLabel.font = .systemFont(ofSize: 16)
+        nameLabel.font = Constants.AppFont.medium(size: 16).font
         nameLabel.textColor = Constants.Colors.black.color
 
         arrow.tintColor = .tertiaryLabel
@@ -44,6 +50,10 @@ final class VisitorRowView: UIView {
         addSubview(nameLabel)
         addSubview(arrow)
         addSubview(separator)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tap)
+        isUserInteractionEnabled = true
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -55,20 +65,24 @@ final class VisitorRowView: UIView {
         avatar.clipsToBounds = true
         avatar.contentMode = .scaleAspectFill
 
-        if let img = visitor.image {
-            avatar.image = img
-            initialLabel.isHidden = true
-        } else {
-            avatar.backgroundColor = UIColor(white: 0.9, alpha: 1)
-            initialLabel.isHidden = false
+        // Плейсхолдер: серый фон + первая буква
+        avatar.backgroundColor = UIColor(white: 0.9, alpha: 1)
+        initialLabel.isHidden = false
 
-            if let first = visitor.name.first {
-                initialLabel.text = String(first).uppercased()
-            }
+        if let first = visitor.name.first {
+            initialLabel.text = String(first).uppercased()
+        }
+        
+        initialLabel.font = Constants.AppFont.bold(size: 18).font
+        initialLabel.textColor = .darkGray
+        initialLabel.textAlignment = .center
 
-            initialLabel.font = .boldSystemFont(ofSize: 18)
-            initialLabel.textColor = .darkGray
-            initialLabel.textAlignment = .center
+        // Загружаем аватар с кешированием; пока загружается или при ошибке
+        // остается плейсхолдер (серый фон с буквой)
+        avatar.loadAvatar(for: visitor.user) { [weak self] image in
+            guard let self = self else { return }
+            // Если аватар загрузился, прячем букву
+            self.initialLabel.isHidden = (image != nil)
         }
     }
 
@@ -117,5 +131,14 @@ final class VisitorRowView: UIView {
                 .right(5)
                 .height(1)
         }
+
+        // Если аватар загрузился, скрываем инициал
+        initialLabel.isHidden = (avatar.image != nil)
+    }
+    
+    // MARK: – Actions
+    
+    @objc private func handleTap() {
+        delegate?.visitorRowView(self, didTap: visitor)
     }
 }

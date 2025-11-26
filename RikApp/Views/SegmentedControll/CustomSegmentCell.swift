@@ -18,6 +18,7 @@ final class SegmentCell: UICollectionViewCell {
         contentView.addSubview(titleLabel)
         contentView.layer.addSublayer(borderLayer)
         titleLabel.textAlignment = .center
+        titleLabel.font = Constants.AppFont.medium(size: 14).font
         contentView.layer.cornerRadius = 16
         contentView.clipsToBounds = true
         borderLayer.borderWidth = 1

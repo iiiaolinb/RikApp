@@ -64,6 +64,79 @@ public final class RealmService {
         }
     }
     
+    /// Преобразует timestamp формата ddMMyyyy (например, 01012025) в `Date`.
+    /// Если число короче 8 символов, добивает ведущими нулями.
+    private func statisticDate(from timestamp: Int) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddMMyyyy"
+        
+        var s = String(timestamp)
+        if s.count < 8 {
+            s = String(repeating: "0", count: 8 - s.count) + s
+        }
+        
+        return formatter.date(from: s)
+    }
+    
+    /// Возвращает количество подписок и отписок за последний месяц,
+    /// отсчитывая от самой последней известной даты в статистиках.
+    ///
+    /// - Returns: Кортеж `(new: Int, lost: Int)` или `nil`, если статистики нет.
+    public func getFollowersCountsLastMonth() -> (new: Int, lost: Int)? {
+        do {
+            let realm = try getRealm()
+            
+            // Берём только статистики подписок/отписок
+            let followerStats = realm.objects(RealmStatisticItem.self)
+                .filter("type == 'subscription' OR type == 'unsubscription'")
+            
+            guard !followerStats.isEmpty else {
+                print("getFollowersCountsLastMonth: нет статистики подписок/отписок")
+                return nil
+            }
+            
+            // Находим максимальный timestamp среди всех дат
+            var allTimestamps: [Int] = []
+            for stat in followerStats {
+                allTimestamps.append(contentsOf: stat.dates)
+            }
+            
+            guard let maxTimestamp = allTimestamps.max(),
+                  let maxDate = statisticDate(from: maxTimestamp) else {
+                print("getFollowersCountsLastMonth: не удалось определить максимальную дату")
+                return nil
+            }
+            
+            let calendar = Calendar.current
+            guard let monthAgo = calendar.date(byAdding: .day, value: -30, to: maxDate) else {
+                print("getFollowersCountsLastMonth: не удалось вычислить дату месяц назад")
+                return nil
+            }
+            
+            var newCount = 0
+            var lostCount = 0
+            
+            // Считаем все события за период [monthAgo, maxDate]
+            for stat in followerStats {
+                for ts in stat.dates {
+                    guard let date = statisticDate(from: ts) else { continue }
+                    if date >= monthAgo && date <= maxDate {
+                        if stat.type == "subscription" {
+                            newCount += 1
+                        } else if stat.type == "unsubscription" {
+                            lostCount += 1
+                        }
+                    }
+                }
+            }
+            
+            return (new: newCount, lost: lostCount)
+        } catch {
+            print("getFollowersCountsLastMonth: ошибка доступа к Realm: \(error)")
+            return nil
+        }
+    }
+    
     /// Получает статистики типа "view" из кэша
     public func getViewStatistics() -> [StatisticItem] {
         do {

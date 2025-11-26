@@ -7,6 +7,7 @@
 
 import UIKit
 import PinLayout
+import BusinessLogicFramework
 
 final class FollowersSummaryCell: UITableViewCell {
 
@@ -37,7 +38,7 @@ final class FollowersSummaryCell: UITableViewCell {
         // Title
         //
         titleLabel.text = "Наблюдатели"
-        titleLabel.font = .boldSystemFont(ofSize: 20)
+        titleLabel.font = Constants.AppFont.bold(size: 20).font
         titleLabel.textColor = Constants.Colors.black.color
         contentView.addSubview(titleLabel)
 
@@ -57,7 +58,7 @@ final class FollowersSummaryCell: UITableViewCell {
         container.addSubview(newIcon)
 
         newCountLabel.text = "1356"
-        newCountLabel.font = .boldSystemFont(ofSize: 22)
+        newCountLabel.font = Constants.AppFont.bold(size: 22).font
         newCountLabel.textColor = Constants.Colors.black.color
         container.addSubview(newCountLabel)
 
@@ -66,7 +67,7 @@ final class FollowersSummaryCell: UITableViewCell {
         container.addSubview(newArrow)
 
         newDescriptionLabel.text = "Новые наблюдатели в этом месяце"
-        newDescriptionLabel.font = .systemFont(ofSize: 14)
+        newDescriptionLabel.font = Constants.AppFont.light(size: 14).font
         newDescriptionLabel.textColor = Constants.Colors.gray.color
         newDescriptionLabel.numberOfLines = 0
         container.addSubview(newDescriptionLabel)
@@ -82,7 +83,7 @@ final class FollowersSummaryCell: UITableViewCell {
         container.addSubview(lostIcon)
 
         lostCountLabel.text = "10"
-        lostCountLabel.font = .boldSystemFont(ofSize: 22)
+        lostCountLabel.font = Constants.AppFont.bold(size: 22).font
         lostCountLabel.textColor = Constants.Colors.black.color
         container.addSubview(lostCountLabel)
 
@@ -91,10 +92,12 @@ final class FollowersSummaryCell: UITableViewCell {
         container.addSubview(lostArrow)
 
         lostDescriptionLabel.text = "Пользователей перестали за вами наблюдать"
-        lostDescriptionLabel.font = .systemFont(ofSize: 14)
+        lostDescriptionLabel.font = Constants.AppFont.light(size: 14).font
         lostDescriptionLabel.textColor = Constants.Colors.gray.color
         lostDescriptionLabel.numberOfLines = 0
         container.addSubview(lostDescriptionLabel)
+        
+        loadFollowersSummary()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -198,5 +201,17 @@ final class FollowersSummaryCell: UITableViewCell {
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         layoutSubviews()
         return CGSize(width: size.width, height: container.frame.maxY + 10)
+    }
+    
+    /// Подтягивает из Realm количество подписок и отписок за последний месяц
+    /// и обновляет `newCountLabel` и `lostCountLabel`.
+    func loadFollowersSummary() {
+        if let counts = RealmService.shared.getFollowersCountsLastMonth() {
+            newCountLabel.text = "\(counts.new)"
+            lostCountLabel.text = "\(counts.lost)"
+        } else {
+            newCountLabel.text = "0"
+            lostCountLabel.text = "0"
+        }
     }
 }

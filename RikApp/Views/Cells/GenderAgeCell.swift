@@ -28,13 +28,14 @@ final class GenderAgeCell: UITableViewCell {
 
         // Заголовок
         titleLabel.text = "Пол и возраст"
-        titleLabel.font = .boldSystemFont(ofSize: 22)
+        titleLabel.font = Constants.AppFont.bold(size: 22).font
         titleLabel.textColor = Constants.Colors.black.color
         contentView.addSubview(titleLabel)
 
         // Сегменты
         let sc = CustomSegmentedControl(items: segments)
         self.segmentedControl = sc
+        sc.delegate = self
         contentView.addSubview(sc)
 
         // Контейнер для диаграммы
@@ -43,8 +44,9 @@ final class GenderAgeCell: UITableViewCell {
         contentView.addSubview(chartContainer)
 
         contentView.addSubview(circleChartView)
-
-        loadData()
+        
+        // Стартовое состояние — первый сегмент ("Сегодня")
+        sc.selectItem(at: 0, animated: false)
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -89,9 +91,9 @@ final class GenderAgeCell: UITableViewCell {
 
     // MARK: - Data Loading
     
-    private func loadData() {
+    private func loadData(for period: GenderAgePeriod) {
         Task {
-            if let data = DataService.shared.getGenderAndAgeData() {
+            if let data = DataService.shared.getGenderAndAgeData(for: period) {
                 let ageStats = data.ageStats.map { ageStat in
                     CircleChartViewContainer.AgeStats(
                         range: ageStat.range,
@@ -138,7 +140,18 @@ final class GenderAgeCell: UITableViewCell {
 // MARK: - CustomSegmentedControlDelegate
 extension GenderAgeCell: CustomSegmentedControlDelegate {
     func segmentedControl(_ control: CustomSegmentedControl, didSelectItemAt index: Int) {
-        print("Выбран сегмент: \(segments[index])")
-        // Здесь можно обновлять данные на основе выбранного периода
+        let period: GenderAgePeriod
+        switch index {
+        case 0:
+            period = .today
+        case 1:
+            period = .week
+        case 2:
+            period = .month
+        default:
+            period = .allTime
+        }
+        
+        loadData(for: period)
     }
 }

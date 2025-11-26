@@ -80,52 +80,13 @@ final class VisitorsChartCell: UITableViewCell {
 
         applySelectedSegment()
     }
-    
-//    /// Загружает данные из Realm и отображает график
-//    func loadChartData() {
-//        let viewStatistics = DataService.shared.getViewStatistics()
-//        
-//        // Объединяем все даты из всех статистик просмотров
-//        // Подсчитываем количество просмотров для каждого уникального timestamp
-//        var dateCounts: [Int: Int] = [:] // [timestamp: количество просмотров]
-//        
-//        for stat in viewStatistics {
-//            for timestamp in stat.dates {
-//                // Если timestamp встречается несколько раз, это означает несколько просмотров в этот момент
-//                dateCounts[timestamp, default: 0] += 1
-//            }
-//        }
-//        
-//        // Сортируем по дате (timestamp)
-//        let sortedDates = dateCounts.keys.sorted()
-//        let timestamps = sortedDates
-//        let values = sortedDates.map { dateCounts[$0] ?? 0 }
-//        
-//        DispatchQueue.main.async {
-//            if !timestamps.isEmpty && !values.isEmpty {
-//                self.chartContainer.setData(timestamps: timestamps, values: values)
-//            } else {
-//                print("VisitorsChartCell: Нет данных для отображения графика (найдено \(viewStatistics.count) статистик)")
-//            }
-//        }
-//    }
-    
-    // Старый метод для обратной совместимости (можно удалить позже)
-//    func setChartData(values: [Int], labels: [String]) {
-//        // Преобразуем labels в timestamps (если labels это даты в формате строки)
-//        // Для обратной совместимости создаем фиктивные timestamps
-//        let now = Int(Date().timeIntervalSince1970)
-//        let timestamps = (0..<values.count).map { now - (values.count - $0 - 1) * 86400 }
-//        
-//        DispatchQueue.main.async {
-//            self.chartContainer.setData(timestamps: timestamps, values: values)
-//        }
-//    }
 }
 
 extension VisitorsChartCell: CustomSegmentedControlDelegate {
     func segmentedControl(_ control: CustomSegmentedControl, didSelectItemAt index: Int) {
         selectedItem = index
+        // При смене сегмента сбрасываем текущее выделение/аннотацию
+        chartContainer.clearHighlight()
         applySelectedSegment()
     }
 }

@@ -74,14 +74,14 @@ final class CircleChartViewContainer: UIView {
     private func setupLegend() {
         maleDot.backgroundColor = maleColor
         maleDot.layer.cornerRadius = 6
-
-        maleLabel.font = .systemFont(ofSize: 14)
+        
+        maleLabel.font = Constants.AppFont.medium(size: 14).font
         maleLabel.textColor = .black
 
         femaleDot.backgroundColor = femaleColor
         femaleDot.layer.cornerRadius = 6
-
-        femaleLabel.font = .systemFont(ofSize: 14)
+        
+        femaleLabel.font = Constants.AppFont.medium(size: 14).font
         femaleLabel.textColor = .black
         
         // Настройка сепаратора

@@ -51,7 +51,7 @@ final class CustomSegmentedControl: UIView {
 
     private func calculateCellWidths() {
         cellWidths = items.map { title in
-            let font = UIFont.systemFont(ofSize: 14, weight: .medium)
+            let font = Constants.AppFont.medium(size: 14).font
             let width = (title as NSString).size(withAttributes: [.font: font]).width + cellPadding * 2
             return width
         }

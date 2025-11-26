@@ -8,6 +8,15 @@
 import Foundation
 import NetworkLayerFramework
 
+// MARK: - Gender & Age Periods
+
+public enum GenderAgePeriod {
+    case today      // Последняя дата
+    case week       // Последние 7 дней
+    case month      // Последние 30 дней (условно)
+    case allTime    // Всё время
+}
+
 public final class DataService {
     public static let shared = DataService()
     
@@ -80,6 +89,68 @@ public final class DataService {
         }
     }
     
+    /// Возвращает всех пользователей из кэша (Realm).
+    /// Если пользователей нет, вернет пустой массив.
+    public func getCachedUsers() -> [User] {
+        return realmService.getCachedUsers()?.users ?? []
+    }
+    
+    /// Возвращает пользователей, отсортированных по количеству просмотров (type == "view").
+    /// Пользователь с максимальным количеством дат в статистике просмотров будет первым.
+    public func getTopViewers(limit: Int? = nil) -> [User] {
+        do {
+            let realm = try RealmService.shared.getRealm()
+            
+            // Берём только статистику с типом "view"
+            let viewStats = realm.objects(RealmStatisticItem.self)
+                .filter("type == 'view'")
+            
+            guard !viewStats.isEmpty else {
+                print("getTopViewers: нет статистики просмотров")
+                return []
+            }
+            
+            // Суммируем количество дат по каждому userId
+            var viewsPerUser: [Int: Int] = [:]  // userId -> count
+            for stat in viewStats {
+                viewsPerUser[stat.userId, default: 0] += stat.dates.count
+            }
+            
+            // Сортируем по количеству просмотров по убыванию
+            let sortedUserIds = viewsPerUser
+                .sorted { $0.value > $1.value }
+                .map { $0.key }
+            
+            let finalUserIds: [Int]
+            if let limit = limit {
+                finalUserIds = Array(sortedUserIds.prefix(limit))
+            } else {
+                finalUserIds = sortedUserIds
+            }
+            
+            guard !finalUserIds.isEmpty else {
+                print("getTopViewers: после сортировки нет userId")
+                return []
+            }
+            
+            // Получаем пользователей из RealmUser по найденным id
+            let realmUsers = realm.objects(RealmUser.self)
+                .filter("id IN %@", finalUserIds)
+            
+            // Преобразуем в сет для быстрого поиска
+            let usersArray = Array(realmUsers.compactMap { $0.toUser() })
+            
+            // Сохраняем порядок по количеству просмотров
+            let usersById = Dictionary(uniqueKeysWithValues: usersArray.map { ($0.id, $0) })
+            let orderedUsers: [User] = finalUserIds.compactMap { usersById[$0] }
+            
+            return orderedUsers
+        } catch {
+            print("getTopViewers: ошибка доступа к Realm: \(error)")
+            return []
+        }
+    }
+    
     // MARK: - Combined Operations
     
     /// Загружает все данные: сначала из кэша, если нет - с сервера
@@ -106,8 +177,21 @@ public final class DataService {
     
     // MARK: - Gender and Age Statistics
     
-    /// Получает данные по полу и возрасту для последней даты из статистик
-    public func getGenderAndAgeData() -> (men: Int, women: Int, ageStats: [(range: String, men: Int, women: Int)])? {
+    /// Преобразуем timestamp (ddMMyyyy) → Date так же, как в VisitorsChartCell
+    private func statisticDate(from timestamp: Int) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddMMyyyy"
+        
+        var s = String(timestamp)
+        if s.count < 8 {
+            s = String(repeating: "0", count: 8 - s.count) + s
+        }
+        
+        return formatter.date(from: s)
+    }
+    
+    /// Получает данные по полу и возрасту для указанного периода
+    public func getGenderAndAgeData(for period: GenderAgePeriod) -> (men: Int, women: Int, ageStats: [(range: String, men: Int, women: Int)])? {
         do {
             let realm = try RealmService.shared.getRealm()
             
@@ -120,34 +204,73 @@ public final class DataService {
                 return nil
             }
             
-            // Находим последнюю дату (максимальный timestamp)
-            var maxDate: Int = 0
+            // Собираем все timestamps, чтобы найти максимальную дату
+            var allTimestamps: [Int] = []
             for stat in viewStats {
-                if let maxInStat = stat.dates.max() {
-                    maxDate = max(maxDate, maxInStat)
-                }
+                allTimestamps.append(contentsOf: stat.dates)
             }
             
-            guard maxDate > 0 else {
-                print("Не найдено дат в статистиках")
+            guard let maxTimestamp = allTimestamps.max(),
+                  let maxDate = statisticDate(from: maxTimestamp) else {
+                print("Не найдено дат в статистиках или не удаётся распарсить дату")
                 return nil
             }
             
-            // Находим всех пользователей, у которых есть эта дата в их статистике
-            var userIdsWithMaxDate: Set<Int> = []
+            let calendar = Calendar.current
+            let weekAgo = calendar.date(byAdding: .day, value: -7, to: maxDate)
+            let monthAgo = calendar.date(byAdding: .day, value: -30, to: maxDate)
+            
+            // Считаем КОЛИЧЕСТВО ПОСЕЩЕНИЙ (events) по каждому пользователю за период
+            var userIdsForPeriod: Set<Int> = []
+            var visitsByUser: [Int: Int] = [:] // userId -> visits count in period
+            var totalVisitsAll: Int = 0
+            
             for stat in viewStats {
-                if stat.dates.contains(maxDate) {
-                    userIdsWithMaxDate.insert(stat.userId)
+                var visitsInPeriod = 0
+                
+                switch period {
+                case .today:
+                    // День: считаем только события в последний день (maxTimestamp)
+                    visitsInPeriod = stat.dates.filter { $0 == maxTimestamp }.count
+                    
+                case .week:
+                    if let weekAgo {
+                        for ts in stat.dates {
+                            guard let d = statisticDate(from: ts) else { continue }
+                            if d >= weekAgo && d <= maxDate {
+                                visitsInPeriod += 1
+                            }
+                        }
+                    }
+                    
+                case .month:
+                    if let monthAgo {
+                        for ts in stat.dates {
+                            guard let d = statisticDate(from: ts) else { continue }
+                            if d >= monthAgo && d <= maxDate {
+                                visitsInPeriod += 1
+                            }
+                        }
+                    }
+                    
+                case .allTime:
+                    visitsInPeriod = stat.dates.count
                 }
+                
+                guard visitsInPeriod > 0 else { continue }
+                
+                userIdsForPeriod.insert(stat.userId)
+                visitsByUser[stat.userId, default: 0] += visitsInPeriod
+                totalVisitsAll += visitsInPeriod
             }
             
-            guard !userIdsWithMaxDate.isEmpty else {
-                print("Не найдено пользователей с последней датой")
+            guard !userIdsForPeriod.isEmpty, totalVisitsAll > 0 else {
+                print("Не найдено посещений для выбранного периода \(period)")
                 return nil
             }
             
             // Получаем данные пользователей
-            let userIdsArray = Array(userIdsWithMaxDate)
+            let userIdsArray = Array(userIdsForPeriod)
             let users = realm.objects(RealmUser.self)
                 .filter("id IN %@", userIdsArray)
             
@@ -156,9 +279,13 @@ public final class DataService {
                 return nil
             }
             
-            // Подсчитываем пол
-            var menCount = 0
-            var womenCount = 0
+            // Мапа пользователей по id для быстрого доступа
+            let usersById: [Int: RealmUser] = Dictionary(uniqueKeysWithValues: users.map { ($0.id, $0) })
+            
+            // Подсчитываем пол и возрастные группы
+            // ВАЖНО: считаем по количеству посещений, а не по количеству пользователей
+            var menVisits = 0
+            var womenVisits = 0
             var ageGroups: [String: (men: Int, women: Int)] = [:]
             
             // Определяем возрастные группы
@@ -178,14 +305,20 @@ public final class DataService {
             }
             
             // Подсчитываем
-            for user in users {
+            for (userId, visits) in visitsByUser {
+                guard let user = usersById[userId], visits > 0 else { continue }
+                
+                // Считаем общие визиты по полу (включая пользователей младше 18 лет)
+                // Определяем возрастную группу (пользователь попадает только в одну группу)
                 if user.sex == "M" {
-                    menCount += 1
+                    menVisits += visits
                 } else if user.sex == "W" {
-                    womenCount += 1
+                    womenVisits += visits
                 }
                 
-                // Определяем возрастную группу (пользователь попадает только в одну группу)
+                // Пользователи младше 18 не попадают ни в одну возрастную группу
+                guard user.age >= 18 else { continue }
+                
                 var ageGroupFound = false
                 for ageRange in ageRanges {
                     if ageGroupFound { break }
@@ -193,9 +326,9 @@ public final class DataService {
                     if ageRange.range == ">50" {
                         if user.age > 50 {
                             if user.sex == "M" {
-                                ageGroups[ageRange.range]?.men += 1
+                                ageGroups[ageRange.range]?.men += visits
                             } else if user.sex == "W" {
-                                ageGroups[ageRange.range]?.women += 1
+                                ageGroups[ageRange.range]?.women += visits
                             }
                             ageGroupFound = true
                         }
@@ -204,27 +337,27 @@ public final class DataService {
                         if ageRange.range == "36–40" {
                             if user.age >= 36 && user.age <= 40 {
                                 if user.sex == "M" {
-                                    ageGroups[ageRange.range]?.men += 1
+                                    ageGroups[ageRange.range]?.men += visits
                                 } else if user.sex == "W" {
-                                    ageGroups[ageRange.range]?.women += 1
+                                    ageGroups[ageRange.range]?.women += visits
                                 }
                                 ageGroupFound = true
                             }
                         } else if ageRange.range == "40–50" {
                             if user.age >= 41 && user.age <= 50 {
                                 if user.sex == "M" {
-                                    ageGroups[ageRange.range]?.men += 1
+                                    ageGroups[ageRange.range]?.men += visits
                                 } else if user.sex == "W" {
-                                    ageGroups[ageRange.range]?.women += 1
+                                    ageGroups[ageRange.range]?.women += visits
                                 }
                                 ageGroupFound = true
                             }
                         } else {
                             if user.age >= ageRange.min && user.age <= ageRange.max {
                                 if user.sex == "M" {
-                                    ageGroups[ageRange.range]?.men += 1
+                                    ageGroups[ageRange.range]?.men += visits
                                 } else if user.sex == "W" {
-                                    ageGroups[ageRange.range]?.women += 1
+                                    ageGroups[ageRange.range]?.women += visits
                                 }
                                 ageGroupFound = true
                             }
@@ -233,33 +366,44 @@ public final class DataService {
                 }
             }
             
-            let total = menCount + womenCount
-            guard total > 0 else {
-                print("Нет пользователей для подсчета")
+            let totalVisitsForGender = menVisits + womenVisits
+            guard totalVisitsForGender > 0 else {
+                print("Нет посещений для подсчета пола")
                 return nil
             }
             
-            // Вычисляем проценты
-            let menPercent = Int((Double(menCount) / Double(total)) * 100)
-            let womenPercent = Int((Double(womenCount) / Double(total)) * 100)
+            // Вычисляем проценты пола относительно всех посещений за период
+            let menPercent = Int((Double(menVisits) / Double(totalVisitsAll)) * 100)
+            let womenPercent = Int((Double(womenVisits) / Double(totalVisitsAll)) * 100)
             
             // Формируем статистику по возрастам в процентах
             var ageStats: [(range: String, men: Int, women: Int)] = []
             for ageRange in ageRanges {
                 if let stats = ageGroups[ageRange.range] {
-                    let menPercent = Int((Double(stats.men) / Double(total)) * 100)
-                    let womenPercent = Int((Double(stats.women) / Double(total)) * 100)
+                    let groupTotal = stats.men + stats.women
+                    guard groupTotal > 0, totalVisitsAll > 0 else {
+                        ageStats.append((range: ageRange.range, men: 0, women: 0))
+                        continue
+                    }
+                    // Для строки возраста считаем проценты относительно общего количества посещений за период
+                    let menPercent = Int((Double(stats.men) / Double(totalVisitsAll)) * 100)
+                    let womenPercent = Int((Double(stats.women) / Double(totalVisitsAll)) * 100)
                     ageStats.append((range: ageRange.range, men: menPercent, women: womenPercent))
                 }
             }
             
-            print("Данные по полу и возрасту: мужчины \(menPercent)%, женщины \(womenPercent)%")
+            print("Данные по полу и возрасту (\(period)): мужчины \(menPercent)%, женщины \(womenPercent)%")
             return (men: menPercent, women: womenPercent, ageStats: ageStats)
             
         } catch {
             print("Ошибка получения данных по полу и возрасту: \(error)")
             return nil
         }
+    }
+
+    /// Backwards-совместимый метод: возвращает данные только за последний день
+    public func getGenderAndAgeData() -> (men: Int, women: Int, ageStats: [(range: String, men: Int, women: Int)])? {
+        return getGenderAndAgeData(for: .today)
     }
 }
 

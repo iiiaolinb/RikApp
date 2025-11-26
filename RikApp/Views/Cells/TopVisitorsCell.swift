@@ -7,26 +7,24 @@
 
 import UIKit
 import PinLayout
+import BusinessLogicFramework
+import NetworkLayerFramework
 
 final class TopVisitorsCell: UITableViewCell {
 
     struct Visitor {
-        let image: UIImage?
+        let user: NetworkLayerFramework.User
         let name: String
         let age: Int
         let emoji: String
         let isOnline: Bool
     }
 
+    var onUserSelected: ((NetworkLayerFramework.User) -> Void)?
+
     private let titleLabel = UILabel()
     private let container = UIView()
     private var rowViews: [VisitorRowView] = []
-
-    private let mock: [Visitor] = [
-        .init(image: UIImage(named: "ava1"), name: "ann.aeom", age: 25, emoji: "🍒", isOnline: true),
-        .init(image: UIImage(named: "ava2"), name: "akimovahuiw", age: 23, emoji: "😈", isOnline: false),
-        .init(image: nil, name: "gulia.filova", age: 32, emoji: "", isOnline: true)
-    ]
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -36,7 +34,7 @@ final class TopVisitorsCell: UITableViewCell {
         selectionStyle = .none
 
         titleLabel.text = "Чаще всех посещают Ваш профиль"
-        titleLabel.font = .boldSystemFont(ofSize: 20)
+        titleLabel.font = Constants.AppFont.bold(size: 20).font
         titleLabel.textColor = Constants.Colors.black.color
 
         container.backgroundColor = .white
@@ -48,12 +46,9 @@ final class TopVisitorsCell: UITableViewCell {
 
         contentView.addSubview(titleLabel)
         contentView.addSubview(container)
-        
-        mock.enumerated().forEach { index, visitor in
-            let row = VisitorRowView(visitor: visitor, isLast: index == mock.count - 1)
-            rowViews.append(row)
-            container.addSubview(row)
-        }
+
+        // Сразу подгружаем топ-посетителей, чтобы корректно посчитать высоту ячейки
+        loadTopVisitors()
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -86,5 +81,47 @@ final class TopVisitorsCell: UITableViewCell {
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         let height = 12 + titleLabel.intrinsicContentSize.height + 12 + CGFloat(rowViews.count) * 64 + 12
         return .init(width: size.width, height: height)
+    }
+
+    // MARK: - Configuration
+
+    /// Конфигурирует ячейку переданным списком пользователей
+    func configure(with users: [NetworkLayerFramework.User]) {
+        // Очищаем старые строки
+        rowViews.forEach { $0.removeFromSuperview() }
+        rowViews.removeAll()
+
+        let topUsers = Array(users.prefix(3))
+
+        topUsers.enumerated().forEach { index, user in
+            let visitor = Visitor(
+                user: user,
+                name: user.username,
+                age: user.age,
+                emoji: "",
+                isOnline: user.isOnline
+            )
+
+            let row = VisitorRowView(visitor: visitor, isLast: index == topUsers.count - 1)
+            row.delegate = self
+            rowViews.append(row)
+            container.addSubview(row)
+        }
+
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
+    /// Загружает top visitors из статистики просмотров (type == "view") через DataService.
+    /// Отображаем сверху тех, кто посещал больше всех.
+    func loadTopVisitors(limit: Int = 3) {
+        let topViewers = DataService.shared.getTopViewers(limit: limit)
+        configure(with: topViewers)
+    }
+}
+
+extension TopVisitorsCell: VisitorRowViewDelegate {
+    func visitorRowView(_ view: VisitorRowView, didTap visitor: Visitor) {
+        onUserSelected?(visitor.user)
     }
 }

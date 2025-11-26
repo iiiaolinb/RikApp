@@ -21,8 +21,8 @@ final class AgeRowView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        ageLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        
+        ageLabel.font = Constants.AppFont.medium(size: 18).font
         ageLabel.textColor = .black
 
         menBar.backgroundColor = Constants.Colors.red.color
@@ -30,10 +30,10 @@ final class AgeRowView: UIView {
 
         menBar.layer.cornerRadius = 3
         womenBar.layer.cornerRadius = 3
-
-        menPercentLabel.font = .systemFont(ofSize: 12)
+        
+        menPercentLabel.font = Constants.AppFont.light(size: 12).font
         menPercentLabel.textColor = .black
-        womenPercentLabel.font = .systemFont(ofSize: 12)
+        womenPercentLabel.font = Constants.AppFont.light(size: 12).font
         womenPercentLabel.textColor = .black
 
         addSubview(ageLabel)

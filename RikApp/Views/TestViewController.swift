@@ -7,16 +7,21 @@
 
 import UIKit
 import PinLayout
+import NetworkLayerFramework
+import BusinessLogicFramework
 
 final class TestViewController: UIViewController {
 
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Constants.Colors.backColor.color
         setupNavigation()
         setupTableView()
+        setupPullToRefresh()
+        loadDataFromCacheOrServer()
     }
 
     override func viewDidLayoutSubviews() {
@@ -59,6 +64,42 @@ final class TestViewController: UIViewController {
 
         view.addSubview(tableView)
     }
+
+    private func setupPullToRefresh() {
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+    }
+
+    @objc private func refreshData() {
+        print("Pull-to-refresh: принудительное обновление данных")
+        Task {
+            let (stats, users) = await DataService.shared.refreshAllData()
+            if let stats = stats {
+                print("Обновленные статистики: \(stats.statistics)")
+            }
+            if let users = users {
+                print("Обновленные пользователи: \(users.users)")
+            }
+            await MainActor.run {
+                self.refreshControl.endRefreshing()
+            }
+        }
+    }
+
+    // MARK: - Data Loading
+
+    private func loadDataFromCacheOrServer() {
+        print("Открытие раздела: проверка данных в базе данных")
+        Task {
+            let (stats, users) = await DataService.shared.loadAllData()
+            if let stats = stats {
+                print("Загруженные статистики: \(stats.statistics)")
+            }
+            if let users = users {
+                print("Загруженные пользователи: \(users.users)")
+            }
+        }
+    }
 }
 
 extension TestViewController: UITableViewDataSource, UITableViewDelegate {
@@ -74,14 +115,26 @@ extension TestViewController: UITableViewDataSource, UITableViewDelegate {
             let cell = tableView.dequeueReusableCell(withIdentifier: "VisitorsChartCell", for: indexPath) as! VisitorsChartCell
             // Данные установим в willDisplay для гарантии правильного layout
             return cell
-        case 2: return tableView.dequeueReusableCell(withIdentifier: "TopVisitorsCell", for: indexPath)
+        case 2:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TopVisitorsCell", for: indexPath) as! TopVisitorsCell
+            cell.onUserSelected = { [weak self] user in
+                guard let self = self else { return }
+                let detailsVC = UserDetailsViewController(user: user)
+                if let sheet = detailsVC.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                self.present(detailsVC, animated: true)
+            }
+            return cell
         case 3: return tableView.dequeueReusableCell(withIdentifier: "GenderAgeCell", for: indexPath)
         default: return tableView.dequeueReusableCell(withIdentifier: "FollowersSummaryCell", for: indexPath)
         }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == 1, let chartCell = cell as? VisitorsChartCell {
+        if indexPath.row == 0, let summaryCell = cell as? VisitorsSummaryCell {
+            summaryCell.loadTotalVisitors()
+        } else if indexPath.row == 1, let chartCell = cell as? VisitorsChartCell {
             // Загружаем данные из Realm
             chartCell.loadChartData()
         }

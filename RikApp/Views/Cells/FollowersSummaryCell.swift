@@ -14,14 +14,14 @@ final class FollowersSummaryCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let container = UIView()
 
-    // Block 1 — NEW
+    //NEW
     private let newIcon = UIImageView()
     private let newCountLabel = UILabel()
     private let newArrow = UIImageView()
     private let newDescriptionLabel = UILabel()
     private let separatorView = UIView()
 
-    // Block 2 — LOST
+    //LOST
     private let lostIcon = UIImageView()
     private let lostCountLabel = UILabel()
     private let lostArrow = UIImageView()
@@ -34,25 +34,16 @@ final class FollowersSummaryCell: UITableViewCell {
         contentView.backgroundColor = Constants.Colors.backColor.color
         selectionStyle = .none
 
-        //
-        // Title
-        //
         titleLabel.text = "Наблюдатели"
         titleLabel.font = Constants.AppFont.bold(size: 20).font
         titleLabel.textColor = Constants.Colors.black.color
         contentView.addSubview(titleLabel)
 
-        //
-        // Container
-        //
         container.backgroundColor = .white
         container.layer.cornerRadius = 16
         container.clipsToBounds = true
         contentView.addSubview(container)
 
-        //
-        // Block 1 — New followers
-        //
         newIcon.image = UIImage(named: "chartUp")
         newIcon.contentMode = .scaleAspectFit
         container.addSubview(newIcon)
@@ -75,9 +66,6 @@ final class FollowersSummaryCell: UITableViewCell {
         separatorView.backgroundColor = Constants.Colors.gray.color.withAlphaComponent(0.2)
         container.addSubview(separatorView)
 
-        //
-        // Block 2 — Lost followers
-        //
         lostIcon.image = UIImage(named: "chartDown")
         lostIcon.contentMode = .scaleAspectFit
         container.addSubview(lostIcon)
@@ -105,17 +93,11 @@ final class FollowersSummaryCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        //
-        // Title
-        //
         titleLabel.pin
             .top(8)
             .horizontally(16)
             .sizeToFit()
 
-        //
-        // Container (height — вручную в конце)
-        //
         container.pin
             .below(of: titleLabel)
             .marginTop(12)
@@ -123,8 +105,6 @@ final class FollowersSummaryCell: UITableViewCell {
 
         var y: CGFloat = 16
         let containerWidth = container.bounds.width
-
-        // ----- Block 1 -----
 
         newIcon.pin
             .left(16)
@@ -155,8 +135,6 @@ final class FollowersSummaryCell: UITableViewCell {
 
         y = newDescriptionLabel.frame.maxY + 24
 
-        // ----- Block 2 -----
-
         lostIcon.pin
             .left(16)
             .top(y)
@@ -186,9 +164,6 @@ final class FollowersSummaryCell: UITableViewCell {
 
         y = lostDescriptionLabel.frame.maxY + 16
 
-        //
-        // Финальная высота container
-        //
         container.pin.height(y)
         
         separatorView.pin
@@ -203,8 +178,6 @@ final class FollowersSummaryCell: UITableViewCell {
         return CGSize(width: size.width, height: container.frame.maxY + 10)
     }
     
-    /// Подтягивает из Realm количество подписок и отписок за последний месяц
-    /// и обновляет `newCountLabel` и `lostCountLabel`.
     func loadFollowersSummary() {
         if let counts = RealmService.shared.getFollowersCountsLastMonth() {
             newCountLabel.text = "\(counts.new)"

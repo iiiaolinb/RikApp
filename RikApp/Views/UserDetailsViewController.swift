@@ -67,7 +67,6 @@ final class UserDetailsViewController: UIViewController {
             .marginTop(16)
             .horizontally(32)
             .sizeToFit(.width)
-            .hCenter()
 
         emojiContainer.pin
             .below(of: nameLabel)
@@ -80,7 +79,6 @@ final class UserDetailsViewController: UIViewController {
             .center(to: emojiContainer.anchor.center)
             .sizeToFit()
 
-        // Скрываем инициал, если аватар уже загрузился
         initialLabel.isHidden = (avatarImageView.image != nil)
     }
 
@@ -102,10 +100,8 @@ final class UserDetailsViewController: UIViewController {
         view.addSubview(avatarImageView)
         view.addSubview(initialLabel)
 
-        // Загружаем аватар пользователя с кешированием
         avatarImageView.loadAvatar(for: user) { [weak self] image in
             guard let self = self else { return }
-            // Если аватар загрузился, прячем букву
             self.initialLabel.isHidden = (image != nil)
         }
     }
@@ -120,7 +116,7 @@ final class UserDetailsViewController: UIViewController {
     }
 
     private func setupEmojiView() {
-        emojiContainer.backgroundColor = UIColor.black.withAlphaComponent(0.05)
+        emojiContainer.backgroundColor = Constants.Colors.black.color.withAlphaComponent(0.05)
         emojiContainer.layer.cornerRadius = 24
 
         emojiLabel.text = "👋🏽"

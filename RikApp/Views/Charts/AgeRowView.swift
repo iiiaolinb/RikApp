@@ -23,7 +23,7 @@ final class AgeRowView: UIView {
         super.init(frame: frame)
         
         ageLabel.font = Constants.AppFont.medium(size: 18).font
-        ageLabel.textColor = .black
+        ageLabel.textColor = Constants.Colors.black.color
 
         menBar.backgroundColor = Constants.Colors.red.color
         womenBar.backgroundColor = Constants.Colors.orange.color
@@ -32,9 +32,9 @@ final class AgeRowView: UIView {
         womenBar.layer.cornerRadius = 3
         
         menPercentLabel.font = Constants.AppFont.light(size: 12).font
-        menPercentLabel.textColor = .black
+        menPercentLabel.textColor = Constants.Colors.black.color
         womenPercentLabel.font = Constants.AppFont.light(size: 12).font
-        womenPercentLabel.textColor = .black
+        womenPercentLabel.textColor = Constants.Colors.black.color
 
         addSubview(ageLabel)
         addSubview(menBar)
@@ -56,8 +56,6 @@ final class AgeRowView: UIView {
         let menWidth = maxBarWidth * CGFloat(menPercent) / 100
         let womenWidth = maxBarWidth * CGFloat(womenPercent) / 100
         
-        // Размещаем оба бара относительно центра view
-        // menBar выше центра, womenBar ниже центра
         let barSpacing: CGFloat = 8
         let barHeight: CGFloat = 6
         let centerY = bounds.height / 2
@@ -68,7 +66,7 @@ final class AgeRowView: UIView {
             .marginLeft(100)
             .width(menWidth)
             .height(barHeight)
-            .top(centerY - offsetFromCenter) // выше центра
+            .top(centerY - offsetFromCenter)
 
         menPercentLabel.pin
             .right(of: menBar, aligned: .center)
@@ -80,7 +78,7 @@ final class AgeRowView: UIView {
             .marginLeft(100)
             .width(womenWidth)
             .height(barHeight)
-            .top(centerY + offsetFromCenter) // ниже центра
+            .top(centerY + offsetFromCenter)
 
         womenPercentLabel.pin
             .right(of: womenBar, aligned: .center)
@@ -88,7 +86,6 @@ final class AgeRowView: UIView {
             .sizeToFit()
     }
 
-    // MARK: — публичный метод
     func configure(age: String, menPercent: Int, womenPercent: Int) {
         ageLabel.text = age
         menPercentLabel.text = "\(menPercent)%"

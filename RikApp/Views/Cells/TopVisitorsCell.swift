@@ -39,7 +39,7 @@ final class TopVisitorsCell: UITableViewCell {
 
         container.backgroundColor = .white
         container.layer.cornerRadius = 16
-        container.layer.shadowColor = UIColor.black.cgColor
+        container.layer.shadowColor = Constants.Colors.black.color.cgColor
         container.layer.shadowOpacity = 0.08
         container.layer.shadowRadius = 8
         container.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -47,7 +47,6 @@ final class TopVisitorsCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(container)
 
-        // Сразу подгружаем топ-посетителей, чтобы корректно посчитать высоту ячейки
         loadTopVisitors()
     }
 
@@ -85,9 +84,7 @@ final class TopVisitorsCell: UITableViewCell {
 
     // MARK: - Configuration
 
-    /// Конфигурирует ячейку переданным списком пользователей
     func configure(with users: [NetworkLayerFramework.User]) {
-        // Очищаем старые строки
         rowViews.forEach { $0.removeFromSuperview() }
         rowViews.removeAll()
 
@@ -112,8 +109,6 @@ final class TopVisitorsCell: UITableViewCell {
         layoutIfNeeded()
     }
 
-    /// Загружает top visitors из статистики просмотров (type == "view") через DataService.
-    /// Отображаем сверху тех, кто посещал больше всех.
     func loadTopVisitors(limit: Int = 3) {
         let topViewers = DataService.shared.getTopViewers(limit: limit)
         configure(with: topViewers)

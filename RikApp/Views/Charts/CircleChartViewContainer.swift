@@ -10,8 +10,12 @@ import DGCharts
 import PinLayout
 
 final class CircleChartViewContainer: UIView {
-
-    // MARK: - UI
+    
+    struct AgeStats {
+        let range: String
+        let men: Int
+        let women: Int
+    }
 
     private let chart = PieChartView()
 
@@ -66,7 +70,6 @@ final class CircleChartViewContainer: UIView {
         chart.highlightPerTapEnabled = false
         chart.usePercentValuesEnabled = false
         
-        // Закругляем края chart
         chart.layer.cornerRadius = 100
         chart.clipsToBounds = true
     }
@@ -76,15 +79,14 @@ final class CircleChartViewContainer: UIView {
         maleDot.layer.cornerRadius = 6
         
         maleLabel.font = Constants.AppFont.medium(size: 14).font
-        maleLabel.textColor = .black
-
+        maleLabel.textColor = Constants.Colors.black.color
+        
         femaleDot.backgroundColor = femaleColor
         femaleDot.layer.cornerRadius = 6
         
         femaleLabel.font = Constants.AppFont.medium(size: 14).font
-        femaleLabel.textColor = .black
+        femaleLabel.textColor = Constants.Colors.black.color
         
-        // Настройка сепаратора
         separator.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
     }
 
@@ -121,15 +123,12 @@ final class CircleChartViewContainer: UIView {
             .marginRight(6)
             .size(12)
 
-        // Размещаем сепаратор ниже легенды
         separator.pin
             .below(of: maleDot)
             .marginTop(20)
             .horizontally(20)
             .height(1)
 
-        // Размещаем agesContainer ниже сепаратора
-        // Фиксированная высота для 7 строк: 7 * 40 = 280
         agesContainer.pin
             .below(of: separator)
             .marginTop(20)
@@ -152,7 +151,7 @@ final class CircleChartViewContainer: UIView {
         let chartTop: CGFloat = 20
         let chartHeight: CGFloat = 200
         let legendTop: CGFloat = 12
-        let legendHeight: CGFloat = 20 // примерная высота элементов легенды
+        let legendHeight: CGFloat = 20
         let separatorTopMargin: CGFloat = 20
         let separatorHeight: CGFloat = 1
         let containerTopMargin: CGFloat = 20
@@ -166,21 +165,12 @@ final class CircleChartViewContainer: UIView {
 
     // MARK: - Data
 
-    struct AgeStats {
-        let range: String   // "18–21"
-        let men: Int        // %
-        let women: Int      // %
-    }
-
-
     func setData(men: Int, women: Int, ages: [AgeStats]) {
-        // Update legend
         maleLabel.text = "Мужчины \(men)%"
         femaleLabel.text = "Женщины \(women)%"
         maleLabel.sizeToFit()
         femaleLabel.sizeToFit()
 
-        // Update chart
         let entries = [
             PieChartDataEntry(value: Double(women)),
             PieChartDataEntry(value: Double(men))
@@ -195,7 +185,6 @@ final class CircleChartViewContainer: UIView {
         let data = PieChartData(dataSet: set)
         chart.data = data
 
-        // Update age rows
         ageRows.forEach { $0.removeFromSuperview() }
         ageRows = []
 
@@ -209,7 +198,6 @@ final class CircleChartViewContainer: UIView {
         setNeedsLayout()
         layoutIfNeeded()
         
-        // Явно обновляем layout для agesContainer
         agesContainer.setNeedsLayout()
         agesContainer.layoutIfNeeded()
     }

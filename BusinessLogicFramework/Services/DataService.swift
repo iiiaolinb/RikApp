@@ -11,10 +11,22 @@ import NetworkLayerFramework
 // MARK: - Gender & Age Periods
 
 public enum GenderAgePeriod {
-    case today      // Последняя дата
-    case week       // Последние 7 дней
-    case month      // Последние 30 дней (условно)
-    case allTime    // Всё время
+    case today
+    case week
+    case month
+    case allTime
+}
+
+// MARK: - Data Result
+
+public struct DataResult {
+    public let statistics: StatisticsResponse
+    public let users: UsersResponse
+    
+    public init(statistics: StatisticsResponse, users: UsersResponse) {
+        self.statistics = statistics
+        self.users = users
+    }
 }
 
 public final class DataService {
@@ -44,14 +56,12 @@ public final class DataService {
     /// Принудительная загрузка статистик с сервера
     public func fetchStatisticsFromServer() async -> StatisticsResponse? {
         print("Запрос статистик с сервера...")
-        let statsResult = await networkService.fetchStatistics()
-        
-        switch statsResult {
-        case .success(let stats):
+        do {
+            let stats = try await networkService.fetchStatistics()
             print("Статистики успешно загружены с сервера: \(stats.statistics)")
             realmService.saveStatistics(stats)
             return stats
-        case .failure(let error):
+        } catch {
             print("Ошибка загрузки статистик с сервера: \(error)")
             return nil
         }
@@ -76,14 +86,12 @@ public final class DataService {
     /// Принудительная загрузка пользователей с сервера
     public func fetchUsersFromServer() async -> UsersResponse? {
         print("Запрос пользователей с сервера...")
-        let usersResult = await networkService.fetchUsers()
-        
-        switch usersResult {
-        case .success(let users):
+        do {
+            let users = try await networkService.fetchUsers()
             print("Пользователи успешно загружены с сервера: \(users.users)")
             realmService.saveUsers(users)
             return users
-        case .failure(let error):
+        } catch {
             print("Ошибка загрузки пользователей с сервера: \(error)")
             return nil
         }
@@ -154,18 +162,28 @@ public final class DataService {
     // MARK: - Combined Operations
     
     /// Загружает все данные: сначала из кэша, если нет - с сервера
-    public func loadAllData() async -> (statistics: StatisticsResponse?, users: UsersResponse?) {
+    public func loadAllData() async -> DataResult? {
         async let stats = loadStatistics()
         async let users = loadUsers()
-        return (await stats, await users)
+        
+        guard let statsResult = await stats, let usersResult = await users else {
+            return nil
+        }
+        
+        return DataResult(statistics: statsResult, users: usersResult)
     }
     
     /// Принудительное обновление всех данных с сервера
-    public func refreshAllData() async -> (statistics: StatisticsResponse?, users: UsersResponse?) {
+    public func refreshAllData() async -> DataResult? {
         print("Принудительное обновление: загрузка всех данных с сервера")
         async let stats = fetchStatisticsFromServer()
         async let users = fetchUsersFromServer()
-        return (await stats, await users)
+        
+        guard let statsResult = await stats, let usersResult = await users else {
+            return nil
+        }
+        
+        return DataResult(statistics: statsResult, users: usersResult)
     }
     
     // MARK: - View Statistics

@@ -34,9 +34,6 @@ public final class ImageCacheService {
     
     // MARK: - Public Methods
     
-    /// Загружает изображение по URL с кешированием
-    /// - Parameter urlString: URL изображения в виде строки
-    /// - Returns: UIImage или nil, если загрузка не удалась
     public func loadImage(from urlString: String) async -> UIImage? {
         guard let url = URL(string: urlString) else {
             print("Некорректный URL: \(urlString)")
@@ -49,29 +46,6 @@ public final class ImageCacheService {
         }
         
         return await downloadImage(from: url)
-    }
-    
-    /// Загружает изображение по URL с кешированием (синхронная версия для совместимости)
-    /// - Parameter urlString: URL изображения в виде строки
-    /// - Parameter completion: Замыкание с результатом загрузки
-    public func loadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
-        Task {
-            let image = await loadImage(from: urlString)
-            completion(image)
-        }
-    }
-    
-    /// Очищает весь кеш изображений
-    public func clearCache() {
-        do {
-            let files = try fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil)
-            for file in files {
-                try? fileManager.removeItem(at: file)
-            }
-            print("Кеш изображений очищен")
-        } catch {
-            print("Ошибка при очистке кеша: \(error)")
-        }
     }
     
     // MARK: - Private Methods

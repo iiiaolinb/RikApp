@@ -42,7 +42,7 @@ final class SegmentCell: UICollectionViewCell {
             borderLayer.borderColor = UIColor.clear.cgColor
         } else {
             contentView.backgroundColor = .white
-            titleLabel.textColor = .black
+            titleLabel.textColor = Constants.Colors.black.color
             borderLayer.borderColor = Constants.Colors.gray.color.cgColor
         }
     }

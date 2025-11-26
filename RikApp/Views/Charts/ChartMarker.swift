@@ -39,7 +39,7 @@ final class ChartMarker: MarkerImage {
         visitorsText = "\(count) \(getVisitorsWord(for: count))"
         visitorsAttrs = [
             .font: Constants.AppFont.medium(size: 14).font,
-            .foregroundColor: UIColor.red
+            .foregroundColor: Constants.Colors.red.color
         ]
         visitorsSize = visitorsText.size(withAttributes: visitorsAttrs)
         
@@ -52,7 +52,7 @@ final class ChartMarker: MarkerImage {
         }
         dateAttrs = [
             .font: Constants.AppFont.light(size: 12).font,
-            .foregroundColor: UIColor.gray
+            .foregroundColor: Constants.Colors.gray.color
         ]
         dateSize = dateText.size(withAttributes: dateAttrs)
         
@@ -67,16 +67,14 @@ final class ChartMarker: MarkerImage {
         
         context.saveGState()
         
-        // --- вертикальная пунктирная линия ---
-        context.setStrokeColor(UIColor.red.cgColor)
+        context.setStrokeColor(Constants.Colors.red.color.cgColor)
         context.setLineWidth(1)
         context.setLineDash(phase: 0, lengths: [5,5])
         context.move(to: CGPoint(x: point.x, y: chart.viewPortHandler.contentTop))
         context.addLine(to: CGPoint(x: point.x, y: chart.viewPortHandler.contentBottom))
         context.strokePath()
-        context.setLineDash(phase: 0, lengths: []) // сброс dash
+        context.setLineDash(phase: 0, lengths: [])
         
-        // --- плашка с текстом ---
         var rect = CGRect(
             x: point.x - totalSize.width / 2,
             y: point.y - totalSize.height - 8,

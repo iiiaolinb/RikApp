@@ -110,7 +110,6 @@ final class VisitorsSummaryCell: UITableViewCell {
         return CGSize(width: size.width, height: 170)
     }
     
-    /// Загружает из Realm статистики типа `view`, суммирует все dates и отображает число.
     func loadTotalVisitors() {
         let viewStats = RealmService.shared.getViewStatistics()
         let total = viewStats.reduce(0) { $0 + $1.dates.count }

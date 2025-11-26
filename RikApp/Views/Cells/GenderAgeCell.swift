@@ -26,32 +26,29 @@ final class GenderAgeCell: UITableViewCell {
         contentView.backgroundColor = Constants.Colors.backColor.color
         selectionStyle = .none
 
-        // Заголовок
         titleLabel.text = "Пол и возраст"
         titleLabel.font = Constants.AppFont.bold(size: 22).font
         titleLabel.textColor = Constants.Colors.black.color
         contentView.addSubview(titleLabel)
 
-        // Сегменты
-        let sc = CustomSegmentedControl(items: segments)
-        self.segmentedControl = sc
-        sc.delegate = self
-        contentView.addSubview(sc)
+        let segmentedControll = CustomSegmentedControl(items: segments)
+        self.segmentedControl = segmentedControll
+        segmentedControll.delegate = self
+        contentView.addSubview(segmentedControll)
 
-        // Контейнер для диаграммы
         chartContainer.layer.cornerRadius = 20
         chartContainer.backgroundColor = .white
         contentView.addSubview(chartContainer)
 
         contentView.addSubview(circleChartView)
         
-        // Стартовое состояние — первый сегмент ("Сегодня")
-        sc.selectItem(at: 0, animated: false)
+        segmentedControll.selectItem(at: 0, animated: false)
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
     // MARK: - Layout
+    
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -76,11 +73,10 @@ final class GenderAgeCell: UITableViewCell {
             .below(of: segmentedControl!)
             .marginTop(12)
             .horizontally(12)
-            .height(593) // Высота для 7 строк: 20 + 200 + 12 + 20 + 20 + 1 + 20 + 280 + 20 = 593
+            .height(593)
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        // Высота рассчитывается динамически на основе содержимого
         let titleHeight: CGFloat = 12 + 22 + 12 // top + title + margin
         let segmentHeight: CGFloat = 36 + 12 // segment + margin
         // Высота CircleChartViewContainer для 7 строк: 20 + 200 + 12 + 20 + 20 + 1 + 20 + 280 + 20 = 593
@@ -90,6 +86,10 @@ final class GenderAgeCell: UITableViewCell {
     }
 
     // MARK: - Data Loading
+    
+    func loadInitialData() {
+        loadData(for: .today)
+    }
     
     private func loadData(for period: GenderAgePeriod) {
         Task {
@@ -107,7 +107,6 @@ final class GenderAgeCell: UITableViewCell {
                 }
             } else {
                 print("Не удалось загрузить данные по полу и возрасту")
-                // Устанавливаем пустые данные
                 await MainActor.run {
                     let emptyAges = (0..<7).map { _ in
                         CircleChartViewContainer.AgeStats(range: "", men: 0, women: 0)
@@ -119,6 +118,7 @@ final class GenderAgeCell: UITableViewCell {
     }
     
     // MARK: - Data for Chart
+    
     func setChartData(men: Int, women: Int, ages: [CircleChartViewContainer.AgeStats]) {
         let entry1 = PieChartDataEntry(value: Double(men))
         let entry2 = PieChartDataEntry(value: Double(women))
@@ -138,6 +138,7 @@ final class GenderAgeCell: UITableViewCell {
 }
 
 // MARK: - CustomSegmentedControlDelegate
+
 extension GenderAgeCell: CustomSegmentedControlDelegate {
     func segmentedControl(_ control: CustomSegmentedControl, didSelectItemAt index: Int) {
         let period: GenderAgePeriod

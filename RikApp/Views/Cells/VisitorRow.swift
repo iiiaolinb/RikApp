@@ -81,7 +81,6 @@ final class VisitorRowView: UIView {
         // остается плейсхолдер (серый фон с буквой)
         avatar.loadAvatar(for: visitor.user) { [weak self] image in
             guard let self = self else { return }
-            // Если аватар загрузился, прячем букву
             self.initialLabel.isHidden = (image != nil)
         }
     }
@@ -132,7 +131,6 @@ final class VisitorRowView: UIView {
                 .height(1)
         }
 
-        // Если аватар загрузился, скрываем инициал
         initialLabel.isHidden = (avatar.image != nil)
     }
     

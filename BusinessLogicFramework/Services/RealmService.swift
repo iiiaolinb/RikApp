@@ -51,10 +51,8 @@ public final class RealmService {
         do {
             let realm = try getRealm()
             try realm.write {
-                // Удаляем старые данные
                 realm.delete(realm.objects(RealmStatisticItem.self))
                 
-                // Сохраняем новые
                 let realmItems = statistics.statistics.map { RealmStatisticItem(from: $0) }
                 realm.add(realmItems)
             }
@@ -85,8 +83,6 @@ public final class RealmService {
     public func getFollowersCountsLastMonth() -> (new: Int, lost: Int)? {
         do {
             let realm = try getRealm()
-            
-            // Берём только статистики подписок/отписок
             let followerStats = realm.objects(RealmStatisticItem.self)
                 .filter("type == 'subscription' OR type == 'unsubscription'")
             
@@ -176,10 +172,8 @@ public final class RealmService {
         do {
             let realm = try getRealm()
             try realm.write {
-                // Удаляем старые данные
                 realm.delete(realm.objects(RealmUser.self))
                 
-                // Сохраняем новые
                 let realmUsers = users.users.map { RealmUser(from: $0) }
                 realm.add(realmUsers)
             }

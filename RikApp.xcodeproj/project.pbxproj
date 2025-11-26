@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4113482DB0AF48B7B9A389E6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 97844C82E73840F584A389E6 /* README.md */; };
+		4AA8D7C22ED77CDD0056E536 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE49BF12ED5CB2000612F18 /* RxSwift */; };
+		4AA8D7C32ED77CDD0056E536 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE49BF42ED5CB2000612F18 /* RxCocoa */; };
 		4AE498632ED4D62600612F18 /* PinLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498622ED4D62600612F18 /* PinLayout */; };
 		4AE498662ED4D8DF00612F18 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498652ED4D8DF00612F18 /* RealmSwift */; };
 		4AE498762ED4D9D300612F18 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498752ED4D9D300612F18 /* DGCharts */; };
@@ -109,6 +111,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AA8D7C32ED77CDD0056E536 /* RxCocoa in Frameworks */,
+				4AA8D7C22ED77CDD0056E536 /* RxSwift in Frameworks */,
 				4AE49BCF2ED5CB1800612F18 /* NetworkLayerFramework.framework in Frameworks */,
 				4AE49BE02ED5CB1900612F18 /* BusinessLogicFramework.framework in Frameworks */,
 				4AE498662ED4D8DF00612F18 /* RealmSwift in Frameworks */,
@@ -183,6 +187,8 @@
 				4AE498622ED4D62600612F18 /* PinLayout */,
 				4AE498652ED4D8DF00612F18 /* RealmSwift */,
 				4AE498752ED4D9D300612F18 /* DGCharts */,
+				4AE49BF12ED5CB2000612F18 /* RxSwift */,
+				4AE49BF42ED5CB2000612F18 /* RxCocoa */,
 			);
 			productName = RikApp;
 			productReference = 4AE4982F2ED4D24400612F18 /* RikApp.app */;
@@ -266,6 +272,7 @@
 				4AE498612ED4D62600612F18 /* XCRemoteSwiftPackageReference "PinLayout" */,
 				4AE498642ED4D8DF00612F18 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				4AE498742ED4D9D300612F18 /* XCRemoteSwiftPackageReference "Charts" */,
+				4AE49BF02ED5CB2000612F18 /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4AE498302ED4D24400612F18 /* Products */;
@@ -718,6 +725,14 @@
 				minimumVersion = 5.1.0;
 			};
 		};
+		4AE49BF02ED5CB2000612F18 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.7.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -740,6 +755,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4AE498642ED4D8DF00612F18 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		4AE49BF12ED5CB2000612F18 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE49BF02ED5CB2000612F18 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		4AE49BF42ED5CB2000612F18 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AE49BF02ED5CB2000612F18 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "233"
             endingLineNumber = "233"
-            landmarkName = "getGenderAndAgeData(for:)"
+            landmarkName = "statisticDate(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

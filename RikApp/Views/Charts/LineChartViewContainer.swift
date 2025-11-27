@@ -56,6 +56,12 @@ final class LineChartViewContainer: UIView {
         lineChartView.highlightPerTapEnabled = true
         lineChartView.highlightPerDragEnabled = true
 
+        // Отключаем масштабирование
+        lineChartView.scaleXEnabled = false
+        lineChartView.scaleYEnabled = false
+        lineChartView.pinchZoomEnabled = false
+        lineChartView.doubleTapToZoomEnabled = false
+
         lineChartView.delegate = self
     }
     

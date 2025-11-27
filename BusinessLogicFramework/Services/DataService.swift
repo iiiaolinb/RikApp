@@ -17,6 +17,25 @@ public enum GenderAgePeriod {
     case allTime
 }
 
+// MARK: - Data Loading Errors
+
+public enum DataLoadingError: LocalizedError {
+    case statisticsLoadFailed
+    case usersLoadFailed
+    case bothLoadFailed
+    
+    public var errorDescription: String? {
+        switch self {
+        case .statisticsLoadFailed:
+            return "Не удалось загрузить статистику. Проверьте подключение к интернету."
+        case .usersLoadFailed:
+            return "Не удалось загрузить данные пользователей. Проверьте подключение к интернету."
+        case .bothLoadFailed:
+            return "Не удалось загрузить данные. Проверьте подключение к интернету."
+        }
+    }
+}
+
 // MARK: - Data Result
 
 public struct DataResult {
@@ -162,28 +181,42 @@ public final class DataService {
     // MARK: - Combined Operations
     
     /// Загружает все данные: сначала из кэша, если нет - с сервера
-    public func loadAllData() async -> DataResult? {
+    public func loadAllData() async throws -> DataResult {
         async let stats = loadStatistics()
         async let users = loadUsers()
         
-        guard let statsResult = await stats, let usersResult = await users else {
-            return nil
+        let statsResult = await stats
+        let usersResult = await users
+        
+        if statsResult == nil && usersResult == nil {
+            throw DataLoadingError.bothLoadFailed
+        } else if statsResult == nil {
+            throw DataLoadingError.statisticsLoadFailed
+        } else if usersResult == nil {
+            throw DataLoadingError.usersLoadFailed
         }
         
-        return DataResult(statistics: statsResult, users: usersResult)
+        return DataResult(statistics: statsResult!, users: usersResult!)
     }
     
     /// Принудительное обновление всех данных с сервера
-    public func refreshAllData() async -> DataResult? {
+    public func refreshAllData() async throws -> DataResult {
         print("Принудительное обновление: загрузка всех данных с сервера")
         async let stats = fetchStatisticsFromServer()
         async let users = fetchUsersFromServer()
         
-        guard let statsResult = await stats, let usersResult = await users else {
-            return nil
+        let statsResult = await stats
+        let usersResult = await users
+        
+        if statsResult == nil && usersResult == nil {
+            throw DataLoadingError.bothLoadFailed
+        } else if statsResult == nil {
+            throw DataLoadingError.statisticsLoadFailed
+        } else if usersResult == nil {
+            throw DataLoadingError.usersLoadFailed
         }
         
-        return DataResult(statistics: statsResult, users: usersResult)
+        return DataResult(statistics: statsResult!, users: usersResult!)
     }
     
     // MARK: - View Statistics

@@ -117,6 +117,11 @@ final class MainViewController: UIViewController {
                 guard let self = self else { return }
                 print("Ошибка обновления данных: \(error)")
                 self.refreshControl.endRefreshing()
+                if let dataError = error as? DataLoadingError {
+                    self.showErrorAlert(message: dataError.localizedDescription)
+                } else {
+                    self.showErrorAlert(message: error.localizedDescription)
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -131,36 +136,96 @@ final class MainViewController: UIViewController {
 
     private func handleInitialDataLoad() {
         if hasCachedData() {
-            print("Найдены кэшированные данные, показываем экран без лоадера")
+            // Показываем кэшированные данные сразу
             DataService.shared.loadAllDataObservable()
                 .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { [weak self] result in
-                    guard let self = self else { return }
-                    print("Загруженные статистики: \(result.statistics.statistics)")
-                    print("Загруженные пользователи: \(result.users.users)")
-                    self.tableView.reloadData()
-                }, onError: { error in
-                    print("Ошибка загрузки данных: \(error)")
+                .subscribe(onNext: { [weak self] _ in
+                    self?.tableView.reloadData()
+                    self?.scheduleBackgroundRefresh()
+                }, onError: { [weak self] error in
+                    if let dataError = error as? DataLoadingError {
+                        self?.showErrorAlert(message: dataError.localizedDescription)
+                    } else {
+                        self?.showErrorAlert(message: error.localizedDescription)
+                    }
                 })
                 .disposed(by: disposeBag)
         } else {
-            print("Кэшированных данных нет, показываем лоадер и загружаем данные")
-            showLoadingOverlay()
-            DataService.shared.loadAllDataObservable()
-                .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { [weak self] result in
-                    guard let self = self else { return }
-                    print("Загруженные статистики: \(result.statistics.statistics)")
-                    print("Загруженные пользователи: \(result.users.users)")
-                    self.hideLoadingOverlay()
-                    self.tableView.reloadData()
-                }, onError: { [weak self] error in
-                    guard let self = self else { return }
-                    print("Ошибка загрузки данных: \(error)")
-                    self.hideLoadingOverlay()
-                })
-                .disposed(by: disposeBag)
+            loadDataWithTimeout()
         }
+    }
+    
+    /// Запускает принудительное обновление данных через 1 секунду в фоне
+    private func scheduleBackgroundRefresh() {
+        Observable<Void>.just(())
+            .delay(.seconds(1), scheduler: MainScheduler.instance)
+            .flatMapLatest { [weak self] _ -> Observable<DataResult> in
+                guard let self = self else {
+                    return Observable.empty()
+                }
+                print("Фоновое обновление: принудительное обновление данных с сервера")
+                return DataService.shared.refreshAllDataObservable()
+            }
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] result in
+                guard let self = self else { return }
+                print("Фоновое обновление: данные успешно обновлены")
+                print("Обновленные статистики: \(result.statistics.statistics)")
+                print("Обновленные пользователи: \(result.users.users)")
+                self.tableView.reloadData()
+            }, onError: { [weak self] error in
+                guard let self = self else { return }
+                print("Фоновое обновление: ошибка обновления данных: \(error)")
+                self.showErrorAlert(message: "Не удалось обновить данные. Данные на экране могут быть неатуальны.")
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func loadDataWithTimeout() {
+        showLoadingOverlay()
+
+        let timeout = Observable<Void>.just(())
+            .delay(.seconds(5), scheduler: MainScheduler.instance)
+
+        let request = DataService.shared.loadAllDataObservable()
+            .observe(on: MainScheduler.instance)
+
+        Observable.amb([timeout, request.map { _ in () }])
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+
+                let hasData =
+                    !DataService.shared.getViewStatistics().isEmpty &&
+                    !DataService.shared.getCachedUsers().isEmpty
+
+                if !hasData {
+                    self.hideLoadingOverlay()
+                    self.showErrorAlert(message: "Не удалось получить данные. Попробуйте позже.")
+                    return
+                }
+
+                let stats = DataService.shared.getViewStatistics()
+                let users = DataService.shared.getCachedUsers()
+
+                if stats.isEmpty || users.isEmpty {
+                    self.hideLoadingOverlay()
+                    self.showErrorAlert(message: "Данные пустые или повреждены.")
+                    return
+                }
+
+                self.hideLoadingOverlay()
+                self.tableView.reloadData()
+            },
+            onError: { [weak self] error in
+                guard let self = self else { return }
+                self.hideLoadingOverlay()
+                if let dataError = error as? DataLoadingError {
+                    self.showErrorAlert(message: dataError.localizedDescription)
+                } else {
+                    self.showErrorAlert(message: error.localizedDescription)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 
